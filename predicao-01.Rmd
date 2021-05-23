@@ -1,0 +1,374 @@
+---
+title: "Predição"
+author: "José Elvano Moraes"
+date: "4/20/2021"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r libraries, echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(bnstruct))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+```
+
+# Redes Bayesianas
+
+Probabilistic reasoning on BNs works in the framework of Bayesian statistics and focuses on the computation of posterior probabilities or densities.
+For example, suppose we have learned a BN B with DAG G and parameters Θ. We want to use B to investigate the effects of a new piece of evidence E using the knowledge encoded in B, that is, to investigate the posterior distribution
+
+$$P(\mathbf{X} | \mathbf{E},\mathbf{\mathcal{B}})=P(\mathbf{X} | \mathbf{E},\mathbf{G},\Theta)$$
+
+The first step of fitting a Bayesian network is called structure learning and consists in identifying the graph structure of the Bayesian network. Ideally, it should be the minimal I-map of the dependence structure of the data or, failing that, it should at least result in a dis- tribution as close as possible to the correct one in the probability space. Several algorithms have been proposed in the literature for structure learning. Despite the variety of theoretical backgrounds and terminology, they fall under three broad cate- gories: constraint-based, score-based, and hybrid algorithms. As an alternative, the network structure can be built manually from the domain knowledge of a human expert and prior information available on the data.
+
+he second step is called parameter learning. As the name suggests, it imple- ments the estimation of the parameters of the global distribution. This task can be performed efficiently by estimating the parameters of the local distributions implied by the structure obtained in the previous step.
+
+Questions that can be asked are called queries and are typically an event of interest. The two most common queries are conditional probability (CPQ) and maximum a posteriori (MAP) queries, also known as most probable explanation (MPE) queries
+
+```{r echo=FALSE}
+rm(list=ls())
+```
+
+
+```{r echo=FALSE}
+load(file = 'inferencia-01.RData')
+ls()
+```
+
+
+
+TODO
+
+With cpquery by setting method = "lw" and specifying the evidence as a named list with one element for each node we are conditioning on 
+```{r echo=FALSE}
+fitt <- bn.fit(bn.no.wl, amostra.90pc.seed.42)
+nparticles = seq(from = 5 * 10^3, to = 10^5, by = 5 * 10^3)
+prob = matrix(0, nrow = length(nparticles), ncol = 20)
+for (i in seq_along(nparticles))
+  for (j in 1:20)
+    prob[i, j] = cpquery(fitt, 
+                         event = (UTI == "1"),
+                         evidence = list(SATURACAO = "2"), 
+                         method = "lw",
+                         n = nparticles[i])
+```
+
+
+```{r echo=FALSE}
+matplot(x=1:20, y=prob[,1:20], 
+        pch = 21, 
+        col="blue", 
+        main="Desempenho de método likelihood weighting", 
+        ylab = "Probabilidade Estimada", 
+        xlab = "Número de partículas")
+```
+
+# Inferência
+
+In practice, probabilistic reasoning on Bayesian networks has its roots embedded in Bayesian statistics and focuses on the computation of posterior probabilities or densities. For example, suppose we have learned a Bayesian network B with.
+Bayesian inference on the other hand is often a follow-up to Bayesian net- work learning and deals with inferring the state of a set of variables given the state of others as evidence.
+
+Bayesian networks, like other statistical models, can be used to answer questions about the nature of the data that go beyond the mere description of the observed sample. Techniques used to obtain those answers based on new evidence are known in general as inference. For Bayesian networks, the process of answering these questions is also known as probabilistic reasoning or belief updating, while the questions themselves are called queries.
+
+In practice, probabilistic reasoning on Bayesian networks has its roots embedded in Bayesian statistics and focuses on the computation of posterior probabilities or densities. For example, suppose we have learned a Bayesian network B with
+
+structure G and parameters $\Theta$ , under one of the distributional assumptions detailed in Sect. 2.2.4. Subsequently, we want to investigate the effects of a new piece of evidence E on the distribution of X using the knowledge encoded in B, that is, to investigate the posterior distribution $P(X | E, B) = P(X | E, G, \Theta )$.
+The approaches used for this kind of analysis vary depending on the nature of E and on the nature of information we are interested in. The two most common kinds of evidence are as follows:
+
+- Hard evidence, an instantiation of one or more variables in the network. In other words,
+
+- Soft evidence, a new distribution for one or more variables in the network. Since both the network structure and the distributional assumptions are treated as fixed, soft evidence is usually specified as a new set of parameters,
+
+As far as queries are concerned, we will focus on conditional probability queries (CPQ) and maximum a posteriori (MAP) queries, also known as most probable explanation (MPE) queries. Both apply mainly to hard evidence, even though they can be used in combination with soft evidence.
+
+## Predição 
+
+Sabe-se que paciente **está** no CTI, estima-se qual a distribuição marginal de probabilidade das variáveis
+
+- IDADE
+- RENAL
+- EVOLUCAO
+- ANTIVIRAL
+
+**Oberve que as variáveis RENAL é independentes das demais na rede**
+
+
+-------------
+
+
+### Legenda para a interpretação das probabilidade das variáveis 
+
+**EVOLUCAO**
+
+1 - Cura, 2 - Obito por COVID-19, 3 - Óbito por outras causas, 9 - Ignorado
+
+**ANTIVIRAL**
+
+1 - Oseltamivir, 2 - Zanamivir, 3 - Outro
+
+**RENAL**
+
+1 - sim, 2 - não, 3 - ignorado
+
+
+--------------
+
+
+### Cenário 1
+
+- UTI: não
+- SUPORT_VEN: não
+
+```{r echo=FALSE}
+amostra.90pc.seed.42.learn <- amostra.90pc.seed.42[1:50000, ]
+amostra.90pc.seed.42.test <- amostra.90pc.seed.42[50001:68999,]
+```
+
+
+```{r echo=FALSE}
+#UTI
+#  1-Sim 
+#  2-Nao 
+#  9-Ignorado
+
+#SUPORT_VEN
+# 1-Sim, invasivo 
+# 2-Sim, nao invasivo 
+# 3-Nao
+# 9-Ignorado
+fitt2 <- bn.fit(avg.diff, amostra.90pc.seed.42.learn[1:50000,])
+junction = compile(as.grain(fitt2))
+jedu = setEvidence(propagate = FALSE, junction, node = c("UTI", "SUPORT_VEN"), states = c("2", "3") )
+querygrain(jedu, 
+           nodes = c("IDADE", "RENAL", "EVOLUCAO", "ANTIVIRAL"),
+           type = "marginal")
+```
+### Cenário 2
+
+- UTI: sim
+- SUPORT_VEN: invasivo
+
+```{r echo=FALSE}
+#UTI
+#  1-Sim 
+#  2-Nao 
+#  9-Ignorado
+
+#SUPORT_VEN
+# 1-Sim, invasivo 
+# 2-Sim, nao invasivo 
+# 3-Nao
+# 9-Ignorado
+
+fitt3 <- bn.fit(avg.diff, amostra.90pc.seed.42.learn)
+junction = compile(as.grain(fitt3))
+jedu = setEvidence(propagate = FALSE, junction, node = c("UTI", "SUPORT_VEN"), states = c("1", "1") )
+querygrain(jedu, 
+           nodes = c("IDADE", "RENAL", "EVOLUCAO", "ANTIVIRAL"),
+           type = "marginal")
+```
+
+### Cenário 3
+
+- UTI: sim
+- SUPORT_VEN: nao invasivo
+
+```{r echo=FALSE}
+#UTI
+#  1-Sim 
+#  2-Nao 
+#  9-Ignorado
+
+#SUPORT_VEN
+# 1-Sim, invasivo 
+# 2-Sim, nao invasivo 
+# 3-Nao
+# 9-Ignorado
+
+fitt3 <- bn.fit(avg.simpler, amostra.90pc.seed.42.learn)
+junction = compile(as.grain(fitt3))
+jedu = setEvidence(propagate = FALSE, junction, node = c("UTI", "SUPORT_VEN"), states = c("1", "2") )
+querygrain(jedu, 
+           nodes = c("IDADE", "RENAL", "EVOLUCAO", "ANTIVIRAL"),
+           type = "marginal")
+```
+
+---------------
+
+# Simulação
+
+```{r}
+bn.wl.fit <- bn.fit(bn.wl, amostra.90pc.seed.42.learn)
+
+nodos <- c("IDADE","FEBRE","GARGANTA","SATURACAO",
+             "EVOLUCAO","RENAL","DIABETES","OBESIDADE",
+             "PERD_OLFT", "PERD_PALA", "NEUROLOGIC",
+             "PNEUMOPATI",
+             "UTI",
+             "CARDIOPATI",
+             "SUPORT_VEN", "ASMA","ANTIVIRAL")
+```
+
+
+```{r}
+amostra.sim = cpdist(bn.wl.fit, 
+                          nodes = nodos, 
+                          evidence = (UTI == "1"),
+                     n = 50000)
+glimpse(amostra.sim)
+
+amostra.real <- dplyr::filter(amostra.90pc.seed.42.learn)
+# amostra.real <- dplyr::filter(amostra.90pc.seed.42.learn, UTI == 1)  
+amostra.real <- sample_n(amostra.real, 
+                         size = nrow(amostra.sim))[,nodos]
+glimpse(amostra.real)
+```
+
+
+```{r}
+amostra.real <- na.omit(amostra.real)
+amostra.sim <- na.omit(amostra.sim)
+rede.real <- mmhc(amostra.real)
+rede.sim <- mmhc(amostra.sim)
+```
+
+## Rede média real versus simulada
+```{r}
+start_time <- Sys.time()
+cat(paste("N real:", nrow(amostra.real), "- N sim:", nrow(amostra.sim) ))
+
+boots.trap  <- 300
+
+forca.sim = boot.strength(amostra.sim, 
+                         R = boots.trap, 
+                         algorithm = "mmhc")
+
+forca.real = boot.strength(amostra.real, 
+                         R = boots.trap, 
+                         algorithm = "mmhc")
+
+rede.media.sim = averaged.network(forca.sim)
+rede.media.real = averaged.network(forca.real)
+
+thr.sim <- paste('Thr: ', attr(forca.sim, "threshold"))
+thr.real <- paste('Thr: ', attr(forca.real, "threshold"))
+
+delta <- end_time <- Sys.time()
+cat(paste("Tempo para ", boots.trap, ":", delta))
+```
+
+
+```{r}
+par(mfrow = c(1, 2))
+strength.plot(rede.media.sim, 
+              forca.sim, 
+              shape = "rectangle", 
+              main = paste("SIM. ", "Thr = " , thr.sim))
+
+
+
+strength.plot(rede.media.real, 
+              forca.real, 
+              shape = "rectangle", 
+              main = paste("REAL", "Thr = ", thr.real))
+```
+
+
+```{r echo=FALSE}
+# fitted.real <- bn.fit(rede.media.real, amostra.real)
+# fitted.sim <- bn.fit(rede.media.real, amostra.real)
+# 
+# par(mfrow = c(1, 2))
+# graphviz.chart(bn.wl.fit(rede.sim, amostra.simulada),  
+#                type = "barprob", 
+#                col = "darkblue", 
+#                bg = "azure", 
+#                bar.col = "darkblue", 
+#                main = "DAG amostra simulada")
+# 
+# graphviz.chart(bn.fit(rede.real, amostra.real),  
+#                type = "barprob", 
+#                col = "darkblue", 
+#                bg = "azure", 
+#                bar.col = "darkblue", 
+#                main = "DAG amostra real")
+```
+
+-------
+# Predição 
+```{r}
+rede.media.real.dagged <- pdag2dag(rede.media.real, 
+                                   ordering = names(amostra.real))
+
+rede.media.sim.dagged <- pdag2dag(rede.media.sim, 
+                                  ordering = names(amostra.sim))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+strength.plot(rede.media.real.dagged, 
+              forca.sim, 
+              shape = "rectangle", 
+              main = paste("SIM. ", "Thr = " , thr.sim))
+
+strength.plot(rede.media.sim.dagged, 
+              forca.real, 
+              shape = "rectangle", 
+              main = paste("REAL", "Thr = ", thr.real))
+```
+
+
+```{r}
+fitt.real<- bn.fit(rede.media.real.dagged, amostra.real)
+fitt.sim <- bn.fit(rede.media.sim.dagged, amostra.sim)
+
+prob.pred.real <- cpquery(fitted = fitt.real, 
+                    event = (EVOLUCAO == "1") , 
+                    evidence = list(SUPORT_VEN = "3", IDADE="(37,73]"), 
+                    method = "lw")
+
+prob.pred.sim <- cpquery(fitted = fitt.sim, 
+                    event = (EVOLUCAO == "2") , 
+                    evidence = list(SUPORT_VEN = "3"), 
+                    method = "lw")
+###
+cat ("prob.pred:", prob.pred.real*100)
+```
+
+
+```{r}
+x <- amostra.90pc.seed.42.test %>% filter(
+                              #SATURACAO == 1, 
+                              #UTI == 1, 
+                              #FEBRE == 1, 
+                              #DIABETES == 2, 
+                              #RENAL == 2,
+                              IDADE == "(37,73]",
+                              SUPORT_VEN == 3
+                            )
+
+a <- filter(x, EVOLUCAO == 1)
+
+
+prob.real <- nrow(a)/nrow(x)
+cat("prob.real:", prob.real*100)
+
+```
+
+
+
+```{r}
+# testar com 
+```
+
+
+
+```{r}
+# outro metodo: usar setEvidence and then querygrain ao invez de cpquery
+```
+

@@ -1,0 +1,358 @@
+---
+title: "Covid-19 - Modelagem Causal"
+subtitle: "Parte I: Aprendizado Bayesiano de estrutura Causal na Síndrome Respiratória Aguda Grave - SRAG"
+author: "José Elvano Moraes"
+date: "14/04/2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+--------
+
+$$SRAG^{causal\: modeling} \; \& \; COVID-19_{simulations}$$ 
+
+--------
+
+*Dataset* = https://dados.gov.br/dataset/bd-srag-2021
+
+*Banco de Dados de Síndrome Respiratória Aguda Grave* - **incluindo dados da COVID-19**
+
+Vigilância de Síndrome Respiratória Aguda Grave (SRAG)
+O Ministério da Saúde (MS), por meio da Secretaria de Vigilância em Saúde (SVS), desenvolve a vigilância da Síndrome Respiratória Aguda Grave (SRAG) no Brasil, desde a pandemia de Influenza A(H1N1)pdm09 em 2009. A partir disso, esta vigilância foi implantada na rede de Influenza e outros vírus respiratórios, que anteriormente atuava apenas com a vigilância sentinela de Síndrome Gripal (SG).
+
+Recentemente (2020), a vigilância da COVID-19, a infecção humana causada pelo novo Coronavírus, foi incorporada na rede de vigilância da Influenza e outros vírus respiratórios.
+
+Esta página tem como finalidade disponibilizar o legado dos bancos de dados (BD) epidemiológicos de SRAG, da rede de vigilância da Influenza e outros vírus respiratórios, desde o início da sua implantação (2009) até os dias atuais (2021), com a incorporação da vigilância da COVID-19. Atualmente, o sistema oficial para o registro dos casos e óbitos de SRAG é o Sistema de Informação da Vigilância Epidemiológica da Gripe (SIVEP-Gripe).
+
+No Guia de Vigilância Epidemiológica Emergência de Saúde Pública de Importância Nacional pela Doença pelo Coronavírus 2019 estão disponíveis informações sobre definições de casos, critérios de confirmação e encerramento dos casos, dentre outros.
+
+Ressaltamos que os dados da vigilância de SRAG no Brasil disponibilizados nesta página, estão sujeitos a alterações decorrentes da investigação pelas equipes de vigilância epidemiológica que desenvolvem o serviço nas três esferas de gestão.
+
+As bases de dados de SRAG disponibilizadas neste portal passam por tratamento que envolve a anonimização, em cumprimento a legislação.
+
+Os dados de 2021 são disponibilizados semanalmente, às quartas-feiras, podendo, excepcionalmente, a atualização ocorrer em outro dia
+
+Para mais informações, acessar:
+
+Gripe/Influenza - https://saude.gov.br/saude-de-a-z/gripe
+
+COVID-19 - https://coronavirus.saude.gov.br/
+
+Guia Nacional de Vigilância da COVID-19 - https://portalarquivos.saude.gov.br/images/af_gvs_coronavirus_6ago20_ajustes-finais-2.pdf
+
+--------
+
+# Nota
+Este documento é ainda tão somente experimentação e análise exploratória em fase absolutamente incipiente. Por isso a falta de estrutura, gráficos não explicativos, *typos*, etc
+
+# Inferência da estrutura da Rede Causal usando o Algoritmo **mmhc**
+
+-------
+
+```{r libraries}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(bnstruct))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+```
+
+## Dados completos
+```{r echo=FALSE}
+#retira a variavel HOSPITAL J-A QUE A MAIORIA DOS PACIENTES EM SRAG
+# É HOSPITALIZADA
+#Carrega CSV na variavel dados
+source('read_data_2.R')
+
+colunas <- c( 
+  'FEBRE', 
+  'TOSSE', 
+  'GARGANTA',
+  'DISPNEIA', 
+  'DESC_RESP',
+  'SATURACAO', 
+  'DIARREIA',
+  'VOMITO', 
+  'OUTRO_SIN',
+  #'HOSPITAL', 
+  'EVOLUCAO',
+  'RENAL', 
+  'DIABETES',
+  'OBESIDADE', 
+  'PERD_OLFT',
+  'PERD_PALA', 
+  'VACINA',
+  'CLASSI_FIN',
+  'CS_SEXO',
+  'CS_GESTANT',
+  'PUERPERA' ,
+  'CARDIOPATI', 
+  'HEMATOLOGI' ,
+  'SIND_DOWN' ,
+  'HEPATICA' ,
+  'ASMA',
+  'ANTIVIRAL'
+  #'TP_ANTIVIR'
+  #'RAIOX_RES'
+)
+
+# separar grupo de variaveis para analise
+colunas_clinicas <- dados[, colunas]
+# POR FIM, FUNCOES DE BNLEARN NAO ACEITAM O TIPO TIBBLE (DE DPLYR):
+dados_clinicos <- as.data.frame(colunas_clinicas)
+nrow(dados_clinicos)
+dados_clinicos_no_na <- as.data.frame(na.omit(dados_clinicos))
+nrow(dados_clinicos_no_na)
+
+# bnlearn nao aceita  tipo tibble
+dados_clinicos <- as.data.frame(dados_clinicos)
+class(dados_clinicos)
+
+glimpse(dados_clinicos)
+```
+
+
+```{r echo=FALSE}
+######### teste #########
+n_amostras = 10000
+bn1 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn2 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn3 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn4 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn1, main="N = 10000 1", shape = "rectangle")
+graphviz.plot(bn2, main="N = 10000 2", shape = "rectangle")
+graphviz.plot(bn3, main="N = 10000 3", shape = "rectangle")
+graphviz.plot(bn4, main="N = 10000 4", shape = "rectangle")
+```
+
+---------
+
+```{r echo=FALSE}
+n_amostras <- 20000
+bn5 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn6 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn7 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn8 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn5, main="N = 20000 1", shape = "rectangle")
+graphviz.plot(bn6, main="N = 20000 2", shape = "rectangle")
+graphviz.plot(bn7, main="N = 20000 3", shape = "rectangle")
+graphviz.plot(bn8, main="N = 20000 4", shape = "rectangle")
+```
+
+
+---------
+
+```{r echo=FALSE}
+n_amostras <- 4900
+bn9  <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn10 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn11 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+bn12 <- suppressWarnings(mmhc(sample_n(tbl = dados_clinicos_no_na, size = n_amostras, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn9,  main="N = 49000 1", shape = "rectangle")
+graphviz.plot(bn10, main="N = 49000 2", shape = "rectangle")
+graphviz.plot(bn11, main="N = 49000 3", shape = "rectangle")
+graphviz.plot(bn12, main="N = 49000 4", shape = "rectangle")
+```
+
+
+---------
+
+```{r echo=FALSE}
+bn13 <- suppressWarnings(mmhc(dados_clinicos_no_na))
+bn14 <- suppressWarnings(mmhc(dados_clinicos_no_na))
+bn15 <- suppressWarnings(mmhc(dados_clinicos_no_na))
+bn16 <- suppressWarnings(mmhc(dados_clinicos_no_na))
+par(mfrow=c(2,2))
+graphviz.plot(bn13, main="N = Todos 92825", shape = "rectangle")
+graphviz.plot(bn14, main="N = Todos 92825", shape = "rectangle")
+graphviz.plot(bn15, main="N = Todos 92825", shape = "rectangle")
+graphviz.plot(bn16, main="N = Todos 92825", shape = "rectangle")
+
+```
+
+```{r}
+x <- sample_n(tbl = dados_clinicos_no_na, size = 49000, replace = FALSE)
+dag <- mmhc(x)
+fitted = bn.fit(dag, x)
+
+# Netica style.
+graphviz.chart(fitted, grid = TRUE, bg = "beige", bar.col = "black")
+```
+
+---------
+
+# Vacinados *versus* não vacinados
+
+## Vacinados
+```{r echo=FALSE}
+dados_clinicos_no_na_vacina <-  dplyr::filter(dados_clinicos_no_na, VACINA == 1)
+#
+bn.v.1 <- suppressWarnings(mmhc(dados_clinicos_no_na_vacina))
+bn.v.2 <- suppressWarnings(mmhc(dados_clinicos_no_na_vacina))
+bn.v.3 <- suppressWarnings(mmhc(dados_clinicos_no_na_vacina))
+bn.v.4 <- suppressWarnings(mmhc(dados_clinicos_no_na_vacina))
+par(mfrow=c(2,2))
+graphviz.plot(bn.v.1, main="Vacinados, N = 15626, 1", shape = "rectangle")
+graphviz.plot(bn.v.2, main="Vacinados, N = 15626, 2", shape = "rectangle")
+graphviz.plot(bn.v.3, main="Vacinados, N = 15626, 3", shape = "rectangle")
+graphviz.plot(bn.v.4, main="Vacinados, N = 15626, 4", shape = "rectangle")
+```
+
+## Não Vacinados
+```{r echo=FALSE}
+dados_clinicos_no_na_NO_vacina <- dados_clinicos_no_na %>% filter(VACINA == 2)
+#
+dados_clinicos_no_na_NO_vacina <- as.data.frame(dados_clinicos_no_na_NO_vacina)
+bn.nv.v.1 <- suppressWarnings(mmhc(dados_clinicos_no_na_NO_vacina))
+bn.nv.v.2 <- suppressWarnings(mmhc(dados_clinicos_no_na_NO_vacina))
+bn.nv.v.3 <- suppressWarnings(mmhc(dados_clinicos_no_na_NO_vacina))
+bn.nv.v.4 <- suppressWarnings(mmhc(dados_clinicos_no_na_NO_vacina))
+par(mfrow=c(2,2))
+graphviz.plot(bn.nv.v.1, main="Não Vacinados, N = 37516, 1", shape = "rectangle")
+graphviz.plot(bn.nv.v.2, main="Não Vacinados, N = 37516, 2", shape = "rectangle")
+graphviz.plot(bn.nv.v.3, main="Não Vacinados, N = 37516, 3", shape = "rectangle")
+graphviz.plot(bn.nv.v.4, main="Não Vacinados, N = 37516, 4", shape = "rectangle")
+```
+
+# Agrupamento por **Classificação final** dos casos
+```{r echo=FALSE}
+# 1 - SRAG porinfluenza 
+# 2 - SRAG por outro virus respiratorio
+# 3 - SRAG por outro agente etiologico,qual:
+# 4 - SRAG nao especificado 
+# 5 - SRAG por COVID-19
+```
+
+
+---------
+
+```{r echo=FALSE}
+srag.covid <- dados_clinicos_no_na %>% filter (CLASSI_FIN == 5)
+srag.nao.covid <- dados_clinicos_no_na %>% filter (CLASSI_FIN != 5)
+
+# Dados COVID Positivos
+glimpse(srag.covid)
+#
+#
+# Dados Covid Negativos
+glimpse(srag.nao.covid)
+```
+
+## SRAG por COVID
+```{r echo=FALSE}
+#
+bn.covid.1 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid, size = .9, replace = FALSE)))
+bn.covid.2 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid, size = .9, replace = FALSE)))
+bn.covid.3 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid, size = .9, replace = FALSE)))
+bn.covid.4 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid, size = .9, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn.covid.1, main="SRAG POR COVID 1", shape="rectangle")
+graphviz.plot(bn.covid.2, main="SRAG POR COVID 2", shape="rectangle")
+graphviz.plot(bn.covid.3, main="SRAG POR COVID 3", shape="rectangle")
+graphviz.plot(bn.covid.4, main="SRAG POR COVID 4", shape="rectangle")
+```
+
+## SRAG por causas não COVID
+```{r echo=FALSE}
+#
+bn.nao.covid.1 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid, size = .9, replace = FALSE)))
+bn.nao.covid.2 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid, size = .9, replace = FALSE)))
+bn.nao.covid.3 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid, size = .9, replace = FALSE)))
+bn.nao.covid.4 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid, size = .9, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn.nao.covid.1, main="SRAG NÃO COVID 1", shape="rectangle")
+graphviz.plot(bn.nao.covid.2, main="SRAG NÃO COVID 2", shape="rectangle")
+graphviz.plot(bn.nao.covid.3, main="SRAG NÃO COVID 3", shape="rectangle")
+graphviz.plot(bn.nao.covid.4, main="SRAG NÃO COVID 4", shape="rectangle")
+```
+
+# COVID *versus* não COVID - vacinados *versus* não-vacinados 
+```{r echo=FALSE}
+srag.covid.vac <- dados_clinicos_no_na %>% filter (CLASSI_FIN == 5 & VACINA == 1) 
+srag.covid.nao.vac <- dados_clinicos_no_na_NO_vacina %>% filter (CLASSI_FIN == 5  & VACINA == 2) 
+#
+srag.nao.covid.vac <- dados_clinicos_no_na %>% filter (CLASSI_FIN != 5 & VACINA == 1)
+srag.nao.covid.nao.vac <- dados_clinicos_no_na_NO_vacina %>% filter (CLASSI_FIN != 5 & VACINA == 2)
+#
+# Dados COVID & VACINADOS
+glimpse(srag.covid.vac)
+#
+glimpse(srag.covid.nao.vac)
+#
+#
+# Dados NAO COVID & NAO VACINADOS
+glimpse(srag.nao.covid.vac)
+#
+glimpse(srag.nao.covid.nao.vac)
+```
+
+## COVID **não vacinados**
+```{r echo=FALSE}
+#
+bn.covid.nao.vac.1 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.nao.vac, size = .9, replace = FALSE)))
+bn.covid.nao.vac.2 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.nao.vac, size = .9, replace = FALSE)))
+bn.covid.nao.vac.3 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.nao.vac, size = .9, replace = FALSE)))
+bn.covid.nao.vac.4 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.nao.vac, size = .9, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn.covid.nao.vac.1, main="COVID NÃO VACINADOS 1. N = 30013", shape="rectangle")
+graphviz.plot(bn.covid.nao.vac.2, main="COVID NÃO VACINADOS 2. N = 30013", shape="rectangle")
+graphviz.plot(bn.covid.nao.vac.3, main="COVID NÃO VACINADOS 3. N = 30013", shape="rectangle")
+graphviz.plot(bn.covid.nao.vac.4, main="COVID NÃO VACINADOS 4. N = 30013", shape="rectangle")
+
+```
+
+
+## COVID **vacinados**
+```{r echo=FALSE}
+# #
+bn.covid.vac.1 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.vac, size = .9, replace = FALSE)))
+bn.covid.vac.2 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.vac, size = .9, replace = FALSE)))
+bn.covid.vac.3 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.vac, size = .9, replace = FALSE)))
+bn.covid.vac.4 <- suppressWarnings(mmhc(sample_frac(tbl = srag.covid.vac, size = .9, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn.covid.vac.1, main="COVID VACINADOS 1. N = 12612", shape="rectangle")
+graphviz.plot(bn.covid.vac.2, main="COVID VACINADOS 2. N = 12612", shape="rectangle")
+graphviz.plot(bn.covid.vac.3, main="COVID VACINADOS 3. N = 12612", shape="rectangle")
+graphviz.plot(bn.covid.vac.4, main="COVID VACINADOS 4. N = 12612", shape="rectangle")
+```
+
+-------------
+
+## NÃO COVID **não vacinados**
+```{r echo=FALSE}
+#
+bn.nao.covid.nao.vac.1 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.nao.vac, size = .9, replace = FALSE)))
+bn.nao.covid.nao.vac.2 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.nao.vac, size = .9, replace = FALSE)))
+bn.nao.covid.nao.vac.3 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.nao.vac, size = .9, replace = FALSE)))
+bn.nao.covid.nao.vac.4 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.nao.vac, size = .9, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn.nao.covid.nao.vac.1, main="NAO COVID NÃO VACINADOS 1. N = 7503", shape="rectangle")
+graphviz.plot(bn.nao.covid.nao.vac.2, main="NAO COVID NÃO VACINADOS 2. N = 7503", shape="rectangle")
+graphviz.plot(bn.nao.covid.nao.vac.3, main="NAO COVID NÃO VACINADOS 3. N = 7503", shape="rectangle")
+graphviz.plot(bn.nao.covid.nao.vac.4, main="NAO COVID NÃO VACINADOS 4. N = 7503", shape="rectangle")
+```
+
+-------------
+
+```{r echo=FALSE}
+#
+bn.nao.covid.vac.1 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.vac, size = .9, replace = FALSE)))
+bn.nao.covid.vac.2 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.vac, size = .9, replace = FALSE)))
+bn.nao.covid.vac.3 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.vac, size = .9, replace = FALSE)))
+bn.nao.covid.vac.4 <- suppressWarnings(mmhc(sample_frac(tbl = srag.nao.covid.vac, size = .9, replace = FALSE)))
+par(mfrow=c(2,2))
+graphviz.plot(bn.nao.covid.vac.1, main="NAO COVID VACINADOS 1. N = 3014", shape="rectangle")
+graphviz.plot(bn.nao.covid.vac.2, main="NAO COVID VACINADOS 2. N = 3014", shape="rectangle")
+graphviz.plot(bn.nao.covid.vac.3, main="NAO COVID VACINADOS 3. N = 3014", shape="rectangle")
+graphviz.plot(bn.nao.covid.vac.4, main="NAO COVID VACINADOS 4. N = 3014", shape="rectangle")
+```

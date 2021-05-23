@@ -1,0 +1,519 @@
+---
+title: "São Paulo"
+author: "José Elvano Moraes"
+date: "5/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r libraries, echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(haven))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(precrec))
+suppressPackageStartupMessages(expr = library(ROCR))
+suppressPackageStartupMessages(expr = library(epiR))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(mice))
+```
+
+
+```{r libraries, echo=FALSE}
+library(cvms)
+library(broom)    # tidy()
+library(tibble)   # tibble()
+```
+
+```{r}
+rm(list = ls())
+```
+
+```{r}
+source(file = 'mice-01.R')
+```
+
+
+```{r}
+dd <- get.cols('./dados/INFLUD21_12_04_2021.rds')
+ddf.with.na <- clean.with.nas(dd)
+ddf.without.na <- clean.without.nas(dd)
+rm(dd)
+
+glimpse(ddf.with.na)
+glimpse(ddf.without.na)
+```
+
+
+# IMPUTAÇÂO via MICE package
+---------
+
+```{r}
+  
+  
+```
+
+
+```{r}
+# Discretizar a variá idade
+ddf.without.na <- discretize(ddf.without.na, method = 'interval')
+# Número total de amostras
+nn <- nrow(ddf.without.na)
+# número de amostras do subset test
+n.test <- 10000
+# número de amostras do subset learn
+n.learn <-  nn - n.test
+
+ii.learn <- sample(x = 1:nn, size = n.learn, replace = FALSE)
+ddf.without.na$index = 'T'
+ddf.without.na$index[ii.learn] <- 'L'
+table(ddf.without.na$index)
+
+ddf.without.na.learn <- ddf.without.na %>% 
+  filter(index == "L") 
+
+ddf.without.na.test <- ddf.without.na %>%
+  filter(index=="T")
+```
+
+```{r}
+
+s1 <- ddf.without.na.learn
+s1 <- select(s1, -index, -HOSPITAL)
+
+s2 <- ddf.without.na.test
+s2 <- select(s2, -index, -HOSPITAL)
+#
+glimpse(s1)
+glimpse(s2)
+```
+# TODO
+```{r}
+wl <- matrix(c("OBESIDADE", "DIABETES",
+              "IDADE", "VACINA",
+              "IDADE", "SUPORT_VEN",
+              "CLASSI_FIN", "EVOLUCAO",
+              "OBESIDADE", "EVOLUCAO",
+              "TOMO_RES", "EVOLUCAO",
+              "SUPORT_VEN", "EVOLUCAO",
+              "SATURACAO", "SUPORT_VEN",
+              #"IDADE","EVOLUCAO",
+              "UTI", "EVOLUCAO"),
+        ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+bl <- matrix(c("OBESIDADE", "DIABETES",
+               "OBESIDADE", "CLASSI_FIN",
+               "CLASSI_FIN", "OBESIDADE",
+               "UTI", "VACINA"),
+            ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+```
+
+## Rede unica e rede black and withed listed
+```{r}
+s1 <- as.data.frame(s1)
+bn.mmhc <- mmhc(s1, whitelist = wl, blacklist = bl)
+bn.hc <- hc(s1, whitelist = wl, blacklist = bl)
+
+par(mfrow = c(1, 2))
+graphviz.plot(bn.mmhc, 
+              shape = 'rectangle', 
+              main = "learn mmhc",
+              highlight  = list(mb(bn1, 'EVOLUCAO')))
+graphviz.plot(bn.hc, 
+              shape = 'rectangle', 
+              main = "learn hc",
+              highlight  = list(mb(bn1, 'EVOLUCAO')))
+```
+
+
+
+
+
+
+
+------------
+
+
+## Predição 
+### explorar a funcao bn.boot
+### bb <- bn.boot(data = s1, statistic = function(x) x, R = 10, algorithm = 'mmhc')
+
+```{r}
+# bb.mmhc <- bn.boot(data = s1, whitelist = wl, blacklist = bl, statistic = function(x) x, R = 10, algorithm = 'mmhc')
+# par(mfrow = c(1, 2))
+# 
+# graphviz.plot(bb.mmhc[[1]],
+#               shape = "rectangle",
+#               main = paste("boot 1 mmhc"))
+# graphviz.plot(bb.mmhc[[10]],
+#               shape = "rectangle",
+#               main = paste("boot 10 mmhc"))
+```
+## Repetindo....
+```{r}
+# bb.hc <- bn.boot(data = s1, statistic = function(x) x, R = 10, algorithm = 'hc')
+# par(mfrow = c(1, 2))
+# 
+# graphviz.plot(bb.hc[[1]], 
+#               shape = "rectangle", 
+#               main = paste("boot 1 hc"))
+# graphviz.plot(bb.hc[[10]], 
+#               shape = "rectangle", 
+#               main = paste("boot 10 hc"))
+```
+## Bootstrap REDE PADRÃO
+
+```{r}
+boots.trap <-  100
+start_time <- Sys.time()
+forca.real = boot.strength(s1,
+                           R = boots.trap, 
+                           algorithm = "mmhc")
+
+
+rede.media.s1 = averaged.network(forca.real)
+
+thr.real <- paste('Thr: ', attr(forca.real, "threshold"))
+
+delta <- Sys.time() - start_time
+cat(paste("Tempo para ", boots.trap, "Bootstraps:", delta, "s"))
+
+```
+
+## Rede "dagged"
+```{r}
+rede.media.s1.dagged <- pdag2dag(rede.media.s1, 
+                                   ordering = names(s1))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+graphviz.plot(bn1, 
+              shape = "rectangle", 
+              main = paste(thr.real))
+strength.plot(rede.media.s1.dagged, 
+              forca.real, 
+              shape = "rectangle", 
+              main = paste(thr.real))
+
+
+# strength.plot(rede.media.s2,
+#               forca.test,
+#               shape = "rectangle",
+#               main = paste(thr.test))
+```
+
+## Markov Blanket da variavel EVOLUCAO da amostra "learn"
+```{r}
+m <- mb(x = rede.media.s1.dagged, node = 'EVOLUCAO')
+mb(x = bn1, node = 'EVOLUCAO')
+mb(x = bn.wl.bl, node = 'EVOLUCAO')
+mb(x = bb[[10]], node = 'EVOLUCAO')
+```
+
+
+# CPQUERY REDE *média* SEM conhecimento especialista
+## mb: "CLASSI_FIN" "IDADE"      "TOMO_RES"   "UTI"        "VACINA"     "SUPORT_VEN"
+```{r}
+fitt.s1 <- bn.fit(rede.media.s1.dagged, s1)
+
+evidencia = list( CLASSI_FIN = "5" ,
+             UTI = "2" ,
+             IDADE = "(39,76]" ,  
+             SUPORT_VEN = "1" )
+
+q <- get.scores(evidencia)
+
+###
+cat ("prob DE EVOLUCAO cura.................:", q[1]*100, "\n")
+cat ("prob DE EVOLUCAO óbito por srag.......:", q[2]*100, "\n")
+cat ("prob DE EVOLUCAO óbito por outra causa:", q[3]*100, "\n")
+cat ("prob DE EVOLUCAO ignorada.............:", q[4]*100, "\n")
+
+rm(q)
+```
+# PROPORCAO NA TABELA *TEST*
+```{r}
+x <- s1 %>% filter(IDADE == "(39,76]",
+                   CLASSI_FIN == "5", 
+                   SUPORT_VEN == "1",  
+                   UTI == "2")
+
+
+cat ("Linhas do dataset x...................:", nrow(x), "\n")
+
+q <- c()
+q[1] <- nrow(filter(x, EVOLUCAO=="1"))/nrow(x)*100
+q[2] <- nrow(filter(x, EVOLUCAO=="2"))/nrow(x)*100
+q[3] <- nrow(filter(x, EVOLUCAO=="3"))/nrow(x)*100
+q[9] <- nrow(filter(x, EVOLUCAO=="9"))/nrow(x)*100
+
+cat ("prob DE EVOLUCAO cura.................:", q[1], "\n")
+cat ("prob DE EVOLUCAO óbito por srag.......:", q[2], "\n")
+cat ("prob DE EVOLUCAO óbito por outra causa:", q[3], "\n")
+cat ("prob DE EVOLUCAO ignorada.............:", q[4], "\n")
+
+rm(x, q)
+```
+
+
+
+
+```{r}
+### "CLASSI_FIN" "IDADE"      "UTI"        "SUPORT_VEN"
+nodos <- s2[, mb(rede.media.s1.dagged, 'EVOLUCAO')]
+nodes.evidencias <-  mb(rede.media.s1.dagged, 'EVOLUCAO')
+
+fitt <- bn.fit(bn.wl.bl, s1)
+prob.pred.cpq.1 <- c()
+prob.pred.cpq.2 <- c()
+prob.pred.cpq.3 <- c()
+prob.pred.cpq.9 <- c()
+
+for (ii in c(1:nrow(nodos))) {
+prob.pred.cpq.1[ii] <- cpquery(fitted = fitt, 
+                    event = (EVOLUCAO == "1") , 
+                    evidence = list(CLASSI_FIN = as.character(nodos[ii,1]), 
+                                    IDADE = as.character(nodos[ii,2]), 
+                                    UTI = as.character(nodos[ii,3]),
+                                    SUPORT_VEN = as.character(nodos[ii,4])),
+                    method = "lw")
+prob.pred.cpq.2[ii] <- cpquery(fitted = fitt, 
+                    event = (EVOLUCAO == "2") , 
+                    evidence = list(CLASSI_FIN = as.character(nodos[ii,1]), 
+                                    IDADE = as.character(nodos[ii,2]), 
+                                    UTI = as.character(nodos[ii,3]),
+                                    SUPORT_VEN = as.character(nodos[ii,4])),
+                    method = "lw")
+prob.pred.cpq.3[ii] <- cpquery(fitted = fitt, 
+                    event = (EVOLUCAO == "3") , 
+                    evidence = list(CLASSI_FIN = as.character(nodos[ii,1]), 
+                                    IDADE = as.character(nodos[ii,2]), 
+                                    UTI = as.character(nodos[ii,3]),
+                                    SUPORT_VEN = as.character(nodos[ii,4])),
+                    method = "lw")
+
+prob.pred.cpq.9[ii] <- cpquery(fitted = fitt, 
+                    event = (EVOLUCAO == "9") , 
+                    evidence = list(CLASSI_FIN = as.character(nodos[ii,1]), 
+                                    IDADE = as.character(nodos[ii,2]), 
+                                    UTI = as.character(nodos[ii,3]),
+                                    SUPORT_VEN = as.character(nodos[ii,4])),
+                    method = "lw")
+}
+```
+
+
+```{r}
+x <- data.frame(prob.pred.cpq.1, 
+                prob.pred.cpq.2, 
+                prob.pred.cpq.3, 
+                prob.pred.cpq.9)
+
+
+x$EVO.1 <- ifelse(  prob.pred.cpq.1 > prob.pred.cpq.2 &
+                    prob.pred.cpq.1 > prob.pred.cpq.3 &
+                    prob.pred.cpq.1 > prob.pred.cpq.9, 1, 0) 
+
+x$EVO.2 <- ifelse(  prob.pred.cpq.2 > prob.pred.cpq.1 &
+                    prob.pred.cpq.2 > prob.pred.cpq.3 &
+                    prob.pred.cpq.2 > prob.pred.cpq.9, 1, 0) 
+
+x$EVO.3 <- ifelse(  prob.pred.cpq.3 > prob.pred.cpq.2 &
+                    prob.pred.cpq.3 > prob.pred.cpq.1 &
+                    prob.pred.cpq.3 > prob.pred.cpq.9, 1, 0) 
+
+x$EVO.9 <- ifelse(  prob.pred.cpq.9 > prob.pred.cpq.2 &
+                    prob.pred.cpq.9 > prob.pred.cpq.3 &
+                    prob.pred.cpq.9 > prob.pred.cpq.1, 1, 0) 
+
+x$EVOLUCAO <- s2$EVOLUCAO
+
+
+```
+
+
+```{r}
+x$RESUL <- ifelse(x$EVO.1 == 1, 1,
+                    ifelse(x$EVO.2 == 1, 2,
+                           ifelse(x$EVO.3 == 1, 3,
+                                  ifelse(x$EVO.9 == 1, 
+                                         9, 0))))
+```
+
+
+```{r}
+conf_mat <- confusion_matrix(targets = x$EVOLUCAO,
+                             predictions = x$RESUL)
+
+conf_mat
+```
+
+
+```{r}
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
+```
+
+
+```{r}
+plot_confusion_matrix(
+  conf_mat$`Confusion Matrix`[[1]],
+  add_sums = TRUE,
+  sums_settings = sum_tile_settings(
+    palette = "Oranges",
+    label = "Total",
+    tc_tile_border_color = "black"
+  )
+)
+```
+
+
+```{r}
+x$RESUL.BIN <- ifelse(x$EVOLUCAO == 1 & x$EVO.1 == 1, 1,
+                    ifelse(x$EVOLUCAO == 2 & x$EVO.2 == 1, 1,
+                           ifelse(x$EVOLUCAO == 3 & x$EVO.3 == 1, 1,
+                                  ifelse(x$EVOLUCAO == 9 & x$EVO.9 == 1,
+                                         1, 0))))
+
+x$MORTE <- ifelse(x$EVOLUCAO == 2, 1, 0)
+x$CURA  <- ifelse(x$EVOLUCAO == 1, 1, 0)
+
+s2 <- na.omit(s2)
+x<-na.omit(x)
+x$SCORE <- rep_len(0, nrow(x))
+
+for (ii in c(1:nrow(x))) {
+  
+  if(x$EVOLUCAO[ii] == 1 & x$EVO.1[ii] == 1){
+    x$SCORE[ii] <- prob.pred.cpq.1[ii] 
+    } else if(x$EVOLUCAO[ii] == 2 & x$EVO.2[ii] == 1){
+      x$SCORE[ii] <- prob.pred.cpq.2[ii]
+    } else if(x$EVOLUCAO[ii] == 3 & x$EVO.3[ii] == 1){
+      x$SCORE[ii] <- prob.pred.cpq.3[ii]
+    } else if(x$EVOLUCAO[ii] == 9 & x$EVO.9[ii] == 1){
+      x$SCORE[ii] <- prob.pred.cpq.9[ii]
+    } else { 
+      x$SCORE[ii] <- min(prob.pred.cpq.1[ii],
+                         prob.pred.cpq.2[ii],
+                         prob.pred.cpq.3[ii],
+                         prob.pred.cpq.9[ii])
+      }
+}
+     
+
+
+# x$SCORE <- ifelse(x$EVOLUCAO == 1 & x$RESUL == 1, prob.pred.cpq.1, 
+#                     ifelse(x$EVOLUCAO == 2 & x$RESUL== 1, prob.pred.cpq.2,
+#                            ifelse(x$EVOLUCAO == 3 & x$RESUL == 1, prob.pred.cpq.3,
+#                                   ifelse(x$EVOLUCAO == 9 & x$RESUL == 1, prob.pred.cpq.9, min(prob.pred.cpq.1,
+#                                                                                               prob.pred.cpq.2,
+#                                                                                               prob.pred.cpq.3,
+#                                                                                               prob.pred.cpq.9)))))
+
+  
+
+```
+  
+```{r}
+# da lib epiR
+print(epi.tests(table(x$MORTE, x$EVO.2), conf.level = 0.95))
+```
+```{r}
+print(epi.tests(table(x$CURA, x$EVO.1), conf.level = 0.95))
+```
+
+### Curva ROC MORTE
+```{r echo=FALSE}
+# Da library ROCR
+pred <- prediction(x$prob.pred.cpq.2, x$MORTE)
+perf <- performance(pred,"tpr","fpr")
+plot(perf,
+     colorize=FALSE,
+     main="Curva MORTE",
+     xlab = "Taxa de falsos positivos",
+     ylab = "Taxa de verdeiro positivos")
+```
+
+### Curva ROC CURA
+```{r echo=FALSE}
+# Da library ROCR
+pred <- prediction(x$prob.pred.cpq.1, x$CURA)
+perf <- performance(pred,"tpr","fpr")
+plot(perf,
+     colorize=TRUE,
+     main="Curva cura",
+     xlab = "Taxa de falsos positivos",
+     ylab = "Taxa de verdeiro positivos")
+```
+
+```{r}
+class1 <- x$CURA
+score1 <- x$prob.pred.cpq.1
+#
+class2 <- x$MORTE
+score2 <- x$prob.pred.cpq.2
+
+rocit1 <- rocit(score = score1, 
+                class = class1)
+rocit2 <- rocit(score = score2, 
+                class = class2)
+
+par(mfrow = c(1, 2))
+plot(rocit1, col = c(2,4))
+title(main = "MORTE")
+legend("bottomright", col = c(2,4),
+       c("Curva ROC empírica", "Acaso"), lwd = 2)
+#
+plot(rocit2, col = c(2,4))
+title(main = "CURA")
+legend("bottomright", col = c(2,4),
+       c("Curva ROC empírica", "Acaso"), lwd = 2)
+
+summary(rocit1)
+summary(rocit2)
+
+```
+
+```{r echo=FALSE}
+par(mfrow = c(1, 2))
+
+class.morte <- x$MORTE
+score.morte <- x$prob.pred.cpq.2
+#
+rocit.morte <- rocit(score = score.morte, 
+                     class = class.morte) #default: empirical
+kplot.morte <- ksplot(rocit.morte)
+#
+message("MORTE KS Stat (empirical) : ", 
+        kplot.morte$`KS stat`)
+#> KS Stat (empirical) : 0.471936339522546
+message("MORTE KS Stat (empirical) cutoff : ", 
+        kplot.morte$`KS Cutoff`)
+#> KS Stat (empirical) cutoff : 0.892084996383686
+
+class.cura <- x$CURA
+score.cura <- x$prob.pred.cpq.1
+#
+rocit.cura <- rocit(score = score.cura, 
+                    class = class.cura) #default: empirical
+kplot.cura <- ksplot(rocit.cura)
+#
+message("CURA KS Stat (empirical) : ", 
+        kplot.cura$`KS stat`)
+#> KS Stat (empirical) : 0.471936339522546
+message("CURA KS Stat (empirical) cutoff : ", 
+        kplot.cura$`KS Cutoff`)
+#> KS Stat (empirical) cutoff : 0.892084996383686
+```
+
+
+

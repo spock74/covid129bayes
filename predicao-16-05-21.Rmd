@@ -1,0 +1,369 @@
+---
+title: "Predição 02 dados de 22 abril 2021"
+author: "José Elvano Moraes"
+date: "4/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r libraries, echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(haven))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(precrec))
+suppressPackageStartupMessages(expr = library(ROCR))
+suppressPackageStartupMessages(expr = library(epiR))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(mice))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(readr))
+```
+
+```{r echo=FALSE}
+# rm(list = ls())
+# INFLUD21_12_04_2021 <- read_delim(file = "./dados/INFLUD21-12-04-2021.csv",
+#                                   delim = ";",
+#                                   escape_double = FALSE,
+#                                   trim_ws = TRUE)
+```
+
+```{r}
+###
+#spec.parsing.INFLUD21_12_04_2021 <-  spec(INFLUD21_12_04_2021)
+#erros.parsing.INFLUD21_12_04_2021 <- problems(INFLUD21_12_04_2021)
+# save(list = c('spec.parsing.INFLUD21_12_04_2021'), 
+#      file = './dados/spec.parsing.INFLUD21_12_04_2021.RData', envir = .GlobalEnv)
+# save(list = c('erros.parsing.INFLUD21_12_04_2021'), 
+#      file = './dados/erros.parsing.INFLUD21_12_04_2021.RData', envir = .GlobalEnv)
+###
+
+###
+#saveRDS(INFLUD21_12_04_2021, './dados/INFLUD21_12_04_2021.rds')
+###
+```
+
+
+```{r}
+INFLUD21_12_04_2021 <- readRDS('./dados/INFLUD21_12_04_2021.rds')
+```
+
+
+```{r}
+colunas <- c("CLASSI_FIN", 
+             "SEM_NOT", 
+             "DT_SIN_PRI", 
+             #"DT_NASC", 
+             "TP_IDADE",
+             "SG_UF_NOT",
+             #"CO_MUN_RES", 
+             #"DT_NOTIFIC",      
+             "NU_IDADE_N",
+             #"FEBRE",
+             #"GARGANTA",
+             "SATURACAO", 
+             #"VOMITO",
+             "EVOLUCAO",
+             "DIABETES",
+             "OBESIDADE", 
+             "TOMO_RES",
+             #"CS_GESTANT",
+             "DOR_ABD", 
+             #"DT_EVOLUCA", 
+             #"CS_RACA", 
+             #"CS_SEXO",
+             "PERD_OLFT", 
+             "PERD_PALA", 
+             #"NEUROLOGIC", 
+             #"FADIGA", 
+             #"CRITERIO",
+             "PNEUMOPATI", 
+             "UTI", 
+             "CARDIOPATI", 
+             "VACINA", 
+             "HOSPITAL",
+             #"HEPATICA",
+             "SUPORT_VEN", 
+             "ASMA",
+             #"ANTIVIRAL", 
+             "IMUNODEPRE",
+             "OUTRO_SIN"
+             #"RENAL"#, 
+             #"DT_INTERNA"
+             )
+
+dd.with.na <- INFLUD21_12_04_2021[,colunas]
+rm(colunas)
+```
+
+
+# dados contendo NA´s
+```{r}
+glimpse(dd.with.na)
+```
+
+# Dados com NA´s omitidos
+```{r}
+dd.without.na <- na.omit(dd.with.na)
+glimpse(dd.without.na)
+```
+
+
+```{r}
+#separar grupo de variaveis para analise
+
+ddf <- dd.with.na %>%
+  rename(IDADE = NU_IDADE_N) %>%
+  filter(SG_UF_NOT == "SP") %>%
+  na.omit(ddf) %>%
+  filter(TP_IDADE == 3) %>%
+  mutate_if(is.double, as.factor)  %>%
+  mutate_if(is.character, as.factor) %>%
+  select(-TP_IDADE, -DT_SIN_PRI)
+
+# dat <- dat %>%
+#     mutate(
+#         Smoking = as.factor(Smoking),
+#         Education = as.factor(Education),
+#         Cholesterol = as.numeric(Cholesterol)
+#     )
+
+  #ddf$CLASSI_FIN <- NULL
+  #options(digits=2)
+  ddf$IDADE = as.double(ddf$IDADE)
+  
+# discretireadR ze idade
+#options(digits=2)
+ddf <- discretize(ddf, method = 'interval') 
+#rm(dd)
+ddf <- as.data.frame(ddf)
+glimpse(ddf)
+#saveRDS(ddf, 'ddf.rds')
+#  
+#  ddf <- readRDS('ddf.rds')
+```
+
+
+
+```{r}
+nn <- nrow(ddf)
+
+n.test <- 20000
+n.learn <-  nn - n.test
+
+ii.learn <- sample(x = 1:nn, size = n.learn, replace = FALSE)
+ddf$index = 'T'
+ddf$index[ii.learn] <- 'L'
+table(ddf$index)
+
+ddf.learn <- ddf %>% 
+  filter(index == "L") 
+
+ddf.test <- ddf %>%
+  filter(index=="T")
+```
+
+```{r}
+s1 <- ddf.learn
+s1 <- select(ddf.learn, -index, -SG_UF_NOT, -HOSPITAL)
+
+s2 <- ddf.test
+s2 <- select(ddf.test, -index, -SG_UF_NOT, -HOSPITAL)
+#
+```
+
+
+```{r}
+s1 <- as.data.frame(s1)
+s2 <- as.data.frame(s2)
+```
+
+
+```{r}
+bn1 <- hc(s1)
+```
+
+```{r}
+par(mfrow = c(1, 1))
+graphviz.plot(bn1, 
+              shape = 'rectangle', 
+              main = "learn",
+              highlight  = list(mb(bn1, 'EVOLUCAO')))
+#graphviz.plot(bn2, shape = 'rectangle', main = "test")
+```
+
+
+
+# TODO
+
+With cpquery by setting method = "lw" and specifying the evidence as a named list with one element for each node we are conditioning on 
+
+
+```{r}
+wl <- matrix(c("OBESIDADE", "DIABETES",
+              "IDADE", "VACINA",
+              #"IDADE", "SUPORT_VEN",
+              "CLASSI_FIN", "EVOLUCAO",
+              "OBESIDADE", "EVOLUCAO",
+              #"OBESIDADE", "EVOLUCAO",
+              "PERD_OLFT", "SATURACAO",
+              "SUPORT_VEN", "EVOLUCAO",
+              "SATURACAO", "SUPORT_VEN",
+              "IDADE","EVOLUCAO",
+              "UTI", "EVOLUCAO"),
+        ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+bl <- matrix(c("OBESIDADE", "DIABETES",
+               "OBESIDADE", "CLASSI_FIN",
+               "CLASSI_FIN", "OBESIDADE",
+               "UTI", "VACINA"),
+            ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+bn.wl.bl <- mmhc(s1, whitelist = wl, blacklist = bl)
+```
+
+## Rede black and withed listed
+```{r}
+par(mfrow = c(1, 1))
+graphviz.plot(bn.wl.bl, 
+              shape = 'rectangle', 
+              main = "learn",
+              highlight  = list(mb(bn.wl.bl, 'EVOLUCAO')))
+
+```
+
+
+------------
+
+
+## Predição 
+### explorar a funcao bn.boot
+### bb <- bn.boot(data = s1, statistic = function(x) x, R = 10, algorithm = 'mmhc')
+
+```{r}
+bb <- bn.boot(data = s1, statistic = function(x) x, R = 100, algorithm = 'hc')
+par(mfrow = c(1, 2))
+
+graphviz.plot(bb[[1]], 
+              shape = "rectangle", 
+              main = paste("boot 1"))
+graphviz.plot(bb[[100]], 
+              shape = "rectangle", 
+              main = paste("boot 10"))
+```
+
+## Bootstrap REDE PADRÃO
+
+```{r}
+boots.trap <- 100
+start_time <- Sys.time()
+forca.real = boot.strength(s1,
+                           R = boots.trap, 
+                           algorithm = "mmhc")
+
+
+rede.media.s1 = averaged.network(forca.real)
+
+thr.real <- paste('Thr: ', attr(forca.real, "threshold"))
+
+delta <- Sys.time() - start_time
+cat(paste("Tempo para ", boots.trap, "Bootstraps:", delta, "s"))
+
+```
+
+## Rede "dagged"
+```{r}
+rede.media.s1.dagged <- pdag2dag(rede.media.s1, 
+                                   ordering = names(s1))
+#rede.media.s2.dagged <- pdag2dag(rede.media.s2,
+#                                    ordering = names(s2))
+
+```
+
+```{r}
+par(mfrow = c(1, 2))
+graphviz.plot(bn.wl.bl, 
+              shape = "rectangle", 
+              main = paste(thr.real))
+strength.plot(rede.media.s1, 
+              forca.real, 
+              shape = "rectangle", 
+              main = paste(thr.real))
+
+
+# strength.plot(rede.media.s2,
+#               forca.test,
+#               shape = "rectangle",
+#               main = paste(thr.test))
+```
+
+## Markov Blanket da variavel EVOLUCAO da amostra "learn"
+```{r}
+mb(x = rede.media.s1.dagged, node = 'EVOLUCAO')
+mb(x = bn1, node = 'EVOLUCAO')
+mb(x = bn.wl.bl, node = 'EVOLUCAO')
+mb(x = bb[[10]], node = 'EVOLUCAO')
+```
+
+
+
+
+
+
+
+
+# SET.EVIDENCE + QUERYGRAIN
+```{r echo=TRUE}
+# IDADE
+# (74.3333,111]     [1,37.6667]       (37.6667,74.3333]
+
+# UTI
+#  1-Sim 
+#  2-Nao 
+#  9-Ignorado
+
+#SUPORT_VEN
+# 1-Sim, invasivo 
+# 2-Sim, nao invasivo 
+# 3-Nao
+# 9-Ignorado
+# 
+fitt1 <- bn.fit(bn.wl.bl, s1)
+junction = compile(as.grain(fitt1))
+jedu = setEvidence(propagate = TRUE, junction,
+                   node = c("CLASSI_FIN",
+                            "IDADE",
+                            "OBESIDADE",
+                            "UTI",
+                            "SUPORT_VEN"),
+                   states = c("5",
+                              "(36,71]",
+                              "1",
+                              "2",
+                              "1") )
+pred.rede <- querygrain(jedu,
+           nodes = c("EVOLUCAO"),
+           type = "marginal")
+
+pred.rede
+
+x <- filter(s2, 
+            CLASSI_FIN == 5, 
+            IDADE == "(36,71]", 
+            OBESIDADE == 1, 
+            UTI == 2, 
+            SUPORT_VEN == 1)
+pred.proporcao <- nrow(filter(x, EVOLUCAO == 2))/nrow(x)
+```
+
+```{r}
+```
+

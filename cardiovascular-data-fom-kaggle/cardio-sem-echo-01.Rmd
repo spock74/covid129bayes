@@ -1,0 +1,273 @@
+---
+title: "Análise Dataset de Cárdio"
+author: "José Elvano Moraes"
+date: "4/27/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(haven))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(precrec))
+suppressPackageStartupMessages(expr = library(ROCR))
+suppressPackageStartupMessages(expr = library(epiR))
+suppressPackageStartupMessages(expr = library(ROCit))
+```
+
+
+
+```{r echo=FALSE}
+suppressWarnings( 
+  cardio <- read_csv("cardio_train.csv", 
+                     col_types = cols(id = col_integer(), 
+                     age = col_number(), 
+                     gender = col_factor(levels = c("1", "2")), 
+                     height = col_number(), 
+                     weight = col_number(), 
+                     ap_hi = col_number(), 
+                     ap_lo = col_number(), 
+                     cholesterol = col_factor(levels = c("1", "2", "3")), 
+                     gluc = col_factor(levels = c("1", "2", "3")), 
+                     smoke = col_factor(levels = c("0","1")), 
+                     alco = col_factor(levels = c("0", "1")), 
+                     active = col_factor(levels = c("0","1")), 
+                     cardio = col_factor(levels = c("0","1")))
+                     )
+)
+```
+
+```{r echo=FALSE}
+colunas <- c("age",         
+             "gender",      
+             "height",      
+             "weight",      
+             "ap_hi",       
+             "ap_lo",       
+             "cholesterol", 
+             "gluc",        
+             "smoke",      
+             "alco",        
+             "active",      
+             "cardio") 
+```
+## Variáveis
+- Idade
+- Sexo
+- Altura
+- Peso
+- Pressão arterial sistólica
+- Pressão arterial diastólica
+- Colesterol
+- Glicemia
+- Tabagismo
+- Consumo de álcool
+- Sedentarismo
+- **Variável alvo: cardio** apresenta doença cardíaca ou não
+```{r echo=FALSE}
+dd = filter(cardio, ap_hi>0, ap_hi>ap_lo, ap_lo > 0, ap_lo<300, ap_hi>0, ap_hi<300)
+set.seed(2)
+
+
+ccc <- select(dd, age, height, weight, ap_lo, ap_hi)
+ccc2 <- discretize(ccc, method = 'hartemink', breaks = 4)
+ddf <- cbind(select(dd, -age, -height, -weight, -ap_lo, -ap_hi), ccc2)
+ddf <- na.omit(ddf)
+ddf$id <- NULL
+
+amostra = ddf[1:7000,]
+amostra.test = ddf[7001:nrow(dd),]
+amostra.test<-na.omit(amostra.test)
+summary(ddf)
+```
+
+```{r echo=FALSE}
+bn1 <- mmhc(ddf)
+```
+
+### Grafo mostrando como nodos coloridos as variáveis das quais a variavel **CARDIO** tem dependência estatística (*Markov blanket*) 
+
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+graphviz.plot(bn1, shape = 'rectangle', 
+              main = "Markov Blanket - CARDIO",
+              highlight = list(nodes=mb(bn1, 'cardio'), fill="lightblue"))
+```
+
+```{r echo=FALSE}
+#print("Fase de bootstrap...")
+R = 100
+arc.strength = boot.strength(ddf, R = R, algorithm = "mmhc")
+rede.media = averaged.network(arc.strength)
+```
+
+### CDF da correlação (correlação de Pearson) entre os nodos do grafo
+
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+plot(arc.strength)
+abline(v = 0.75, col = "tomato", lty = 2, lwd = 2)
+abline(v = 0.85, col = "steelblue", lty = 2, lwd = 2)
+```
+
+### Grafo médio após 100 iterações 
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+strength.plot(rede.media, 
+              arc.strength, 
+              shape = "rectangle")
+```
+
+```{r echo=FALSE}
+# cado a rede nao seja totalmente direcional (nao seja um DAG) forcar-la a ser
+rede.media.dagged <- pdag2dag(rede.media, 
+                             ordering = names(ddf))
+```
+
+### Grafo médio tornado um *DAG*
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+graphviz.plot(rede.media.dagged, shape = 'rectangle', 
+              main = "Markov Blanket - CARDIO",
+              highlight = list(nodes=mb(rede.media.dagged, 'cardio'), fill="lightblue"))
+```
+
+### Distribuição de probabilidade (PDF) de cada variável
+```{r echo=FALSE}
+fitted.m <- bn.fit(rede.media.dagged, amostra)
+par(mfrow = c(1, 1))
+graphviz.chart(fitted.m,
+               type = "barprob", 
+               col = "darkblue",
+               bg = "azure", 
+               bar.col = "darkblue", 
+               main = "DAG sem WL")
+```
+
+--------------
+
+# Predição
+```{r echo=FALSE}
+# rede.media.test.dagged <- pdag2dag(rede.media.test, 
+#                                    ordering = names(amostra.test))
+
+#USAR fit da rede da amostra learn, nao test
+fitt <- bn.fit(rede.media.dagged, ddf)
+
+amostra.test.resul <- amostra.test
+amostra.test.resul$CARDIO.PRED <- -1
+nodos <- amostra.test[, mb(rede.media.dagged, 'cardio')]
+nodes.evidencias <-  mb(rede.media.dagged, 'cardio')
+
+junction = compile(as.grain(fitt))
+x<-c()
+for (ii in c(1:nrow(nodos))) {
+  jedu = setEvidence(propagate = TRUE, junction, 
+                     nodes = nodes.evidencias, 
+                     states = c(as.character(nodos[ii,1]), 
+                                as.character(nodos[ii,2]), 
+                                as.character(nodos[ii,3])#,
+                                #as.character(nodos[ii,4]), 
+                                #as.character(nodos[ii,5])
+                                ))
+  
+  z <- querygrain(jedu, nodes = c("cardio"))
+  zz <- z$cardio
+  x[ii] <- zz[1]
+  amostra.test.resul$CARDIO.PRED[ii] <- x[ii]
+  
+}
+```
+
+### Desempenho estatístico da rede
+```{r echo=FALSE}
+amostra.test.resul$PREDICAO <- ifelse(amostra.test.resul$CARDIO.PRED>0.5, 0, 1)
+v <- amostra.test.resul[,c('cardio', 'PREDICAO')]
+
+# da lib epiR
+print(epi.tests(table(v), conf.level = 0.95))
+```
+### Curva ROC
+```{r echo=FALSE}
+# Da library ROCR
+# pred <- prediction(1-x, v$cardio)
+# perf <- performance(pred,"tpr","fpr")
+# plot(perf,
+#      colorize=FALSE, 
+#      main="Curva ROC", 
+#      xlab = "Taxa de falsos positivos",
+#      ylab = "Taxa de verdeiro positivos")
+
+## Warning: package 'ROCit' was built under R version 3.5.2
+ROCit_obj <- rocit(score=1-x,class=v$cardio)
+par(mfrow = c(1, 1))
+plot(ROCit_obj, col = c(2,4))
+legend("bottomright", col = c(2,4),
+       c("Curva ROC empírica", "Acaso"), lwd = 2)
+ 
+print(summary(ROCit_obj))
+```
+
+### Outra implementação de curva  ROC e outras estatísticas
+```{r echo=FALSE}
+# da lib precrec
+precrec_obj <- evalmod(scores = 1-x, labels = v$cardio)
+autoplot(precrec_obj)
+
+precrec_obj2 <- evalmod(scores = 1-x, labels = v$cardio, mode="basic")
+autoplot(precrec_obj2)  
+```
+
+### KS plot 
+KS plot shows the cumulative density functions F(c) and G(c) in the positive and negative populations. If the positive population have higher value, then negative curve (F(c)) ramps up quickly. The KS statistic is the maximum difference of F(c) and G(c).
+```{r echo=FALSE}
+class <- v$cardio
+score <- 1-x
+#
+rocit <- rocit(score = score, 
+               class = class) #default: empirical
+kplot <- ksplot(rocit)
+#
+message("KS Stat (empirical) : ", 
+        kplot$`KS stat`)
+#> KS Stat (empirical) : 0.471936339522546
+message("KS Stat (empirical) cutoff : ", 
+        kplot$`KS Cutoff`)
+#> KS Stat (empirical) cutoff : 0.892084996383686
+```
+
+# TODO
+- ACC: Overall accuracy of classification.
+- MIS: Misclassification rate.
+- SENS: Sensitivity.
+- SPEC: Specificity.
+- PREC: Precision.
+- REC: Recall. Same as sensitivity.
+- PPV: Positive predictive value.
+- NPV: Negative predictive value.
+- TPR: True positive rate.
+- FPR: False positive rate.
+- TNR: True negative rate.
+- FNR: False negative rate.
+- pDLR: Positive diagnostic likelihood ratio.
+- nDLR: Negative diagnostic likelihood ratio.
+- FSCR: F-score
+
+```{r}
+measure <- measureit(score = score, class = class,
+                     measure = c("ACC", "SENS", "FSCR"))
+
+plot(measure$ACC~measure$Cutoff, type = "l")
+```
+
+

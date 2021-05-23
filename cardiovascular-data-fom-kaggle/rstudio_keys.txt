@@ -1,0 +1,243 @@
+============================================================================================================
+Console
+Description                                                                 Mac
+Move cursor to Console                                                  Ctrl+2
+Clear console                                                           Ctrl+L
+Move cursor to beginning of line                                        Cmd+Left
+Move cursor to end of line                                              Cmd+Right
+Navigate command history                                                Up/Down
+Popup command history                                                   Cmd+Up
+Interrupt currently executing command                                   Esc
+Change working directory                                                Ctrl+Shift+H
+============================================================================================================ 
+Source
+Description                                                                 Mac
+Go to File/Function                                                     Ctrl+. [period]
+Move cursor to Source Editor                                            Ctrl+1
+Toggle document outline                                                 Cmd+Shift+O
+Toggle Visual Editor                                                    Cmd+Shift+F4
+New document (except on Chrome/Windows)                                 Cmd+Shift+N
+New document (Chrome only)                                              Cmd+Shift+Alt+N
+Open document                                                           Cmd+O
+Save active document                                                    Cmd+S
+Save all documents                                                      Cmd+Option+S
+Close active document (except on Chrome)                                Cmd+W
+Close active document (Chrome only)                                     Cmd+Option+W
+Close all open documents                                                Cmd+Shift+W
+Close other documents                                                   Cmd+Option+Shift+W
+Preview HTML (Markdown and HTML)                                        Cmd+Shift+K
+Knit Document (knitr)                                                   Cmd+Shift+K
+Compile Notebook                                                        Cmd+Shift+K
+Compile PDF (TeX and Sweave)                                            Cmd+Shift+K
+Insert chunk (Sweave and Knitr)                                         Cmd+Option+I
+Insert code section                                                     Cmd+Shift+R
+Run current line/selection                                              Cmd+Return
+Run current line/selection (retain cursor position)                     Option+Return
+Re-run previous region                                                  Cmd+Alt+P
+Run current document                                                    Cmd+Option+R
+Run from document beginning to current line                             Cmd+Option+B
+Run from current line to document end                                   Cmd+Option+E
+Run the current function definition                                     Cmd+Option+F
+Run the current code section                                            Cmd+Option+T
+Run previous Sweave/Rmd code                                            Cmd+Shift+Option+P
+Run the current Sweave/Rmd chunk                                        Cmd+Option+C
+Run the next Sweave/Rmd chunk                                           Cmd+Option+N
+Source a file                                                           Ctrl+Option+G
+Source the current document                                             Cmd+Shift+S
+Source the current document (with echo)                                 Cmd+Shift+Return
+Send current line/selection to terminal                                 Cmd+Option+Return
+Fold Selected                                                           Cmd+Option+L
+Unfold Selected                                                         Cmd+Shift+Option+L
+Fold All                                                                Cmd+Option+O
+Unfold All                                                              Cmd+Shift+Option+O
+Go to line                                                              Cmd+Shift+Option+G
+Jump to                                                                 Cmd+Shift+Option+J
+Expand selection                                                        Ctrl+Option+Shift+Up
+Shrink selection                                                        Ctrl+Option+Shift+Down
+Next section                                                            Cmd+PgDn
+Previous section                                                        Cmd+PgUp
+Split into lines                                                        Ctrl+Option+A
+Edit lines from start                                                   Ctrl+Shift+Option+A
+Switch to tab                                                           Ctrl+Shift+. [period]
+Previous tab                                                            Ctrl+F11
+Previous tab (desktop)                                                  Ctrl+Shift+Tab
+Next tab                                                                Ctrl+F12
+Next tab (desktop)                                                      Ctrl+Tab
+First tab                                                               Ctrl+Shift+F11
+Last tab                                                                Ctrl+Shift+F12
+Navigate back                                                           Cmd+F9
+Navigate forward                                                        Cmd+F10
+Extract function from selection                                         Cmd+Option+X
+Extract variable from selection                                         Cmd+Option+V
+Reindent lines                                                          Cmd+I
+Comment/uncomment current line/selection                                Cmd+Shift+C
+Reflow Comment                                                          Cmd+Shift+/
+Reformat Selection                                                      Cmd+Shift+A
+Show Diagnostics                                                        Cmd+Shift+Option+D
+Transpose Letters                                                       Ctrl+T
+Move Lines Up/Down                                                      Option+Up/Down
+Copy Lines Up/Down                                                      Cmd+Option+Up/Down
+Jump to Matching Brace/Paren                                            Ctrl+P
+Expand to Matching Brace/Paren                                          Ctrl+Shift+E
+Add Cursor Above Current Cursor                                         Ctrl+Option+Up
+Add Cursor Below Current Cursor                                         Ctrl+Option+Down
+Move Active Cursor Up                                                   Ctrl+Option+Shift+Up
+Move Active Cursor Down                                                 Ctrl+Option+Shift+Down
+Find and Replace                                                        Cmd+F
+Find Next                                                               Cmd+G
+Find Previous                                                           Cmd+Shift+G
+Use Selection for Find                                                  Cmd+E
+Replace and Find                                                        Cmd+Shift+J
+Find in Files                                                           Cmd+Shift+F
+Check Spelling                                                          F7
+Rename Symbol in Scope                                                  Cmd+Option+Shift+M
+Insert Roxygen Skeleton                                                 Cmd+Option+Shift+R
+============================================================================================================
+Editing (Console and Source)
+Description                                                                 Mac
+Undo                                                                    Cmd+Z
+Redo                                                                    Cmd+Shift+Z
+Cut                                                                     Cmd+X
+Copy                                                                    Cmd+C
+Paste                                                                   Cmd+V
+Select All                                                              Cmd+A
+Jump to Word                                                            Option+Left/Right
+Jump to Start/End                                                       Cmd+Home/End or Cmd+Up/Down
+Delete Line                                                             Cmd+D
+Select                                                                  Shift+[Arrow]
+Select Word                                                             Option+Shift+Left/Right
+Select to Line Start                                                    Cmd+Shift+Left
+Select to Line End                                                      Cmd+Shift+Right
+Select Page Up/Down                                                     Shift+PageUp/Down
+Select to Start/End                                                     Cmd+Shift+Up/Down
+Delete Word Left                                                        Option+Backspace or Ctrl+Option+Backspace
+Delete Word Right                                                       Option+Delete
+Delete to Line End                                                      Ctrl+K
+Delete to Line Start                                                    Option+Backspace
+Indent                                                                  Tab (at beginning of line)
+Outdent                                                                 Shift+Tab
+Yank line up to cursor                                                  Ctrl+U
+Yank line after cursor                                                  Ctrl+K
+Insert currently yanked text                                            Ctrl+Y
+Insert assignment operator                                              Option+-
+Insert pipe operator                                                    Cmd+Shift+M
+Show help for function at cursor                                        F1
+Show source code for function at cursor                                 F2
+Find usages for symbol at cursor (C++)                                  Cmd+Option+U                                         
+============================================================================================================
+Completions (Console and Source)
+Description                                                             Mac
+Attempt completion                                                      Tab or Cmd+Space
+Navigate candidates                                                     Up/Down
+Accept selected candidate                                               Enter, Tab, or Right
+Dismiss completion popup                                                Esc
+============================================================================================================                                               
+Views
+Description                                                             Mac
+Move focus to Source Editor                                             Ctrl+1
+Zoom Source Editor                                                      Ctrl+Shift+1
+Add Source Column                                                       Cmd+F7
+Move focus to Console                                                   Ctrl+2
+Zoom Console                                                            Ctrl+Shift+2
+Move focus to Help                                                      Ctrl+3
+Zoom Help                                                               Ctrl+Shift+3
+Move focus to Terminal                                                  Shift+Option+M
+Show History                                                            Ctrl+4
+Zoom History                                                            Ctrl+Shift+4
+Show Files                                                              Ctrl+5
+Zoom Files                                                              Ctrl+Shift+5
+Show Plots                                                              Ctrl+6
+Zoom Plots                                                              Ctrl+Shift+6
+Show Packages                                                           Ctrl+7
+Zoom Packages                                                           Ctrl+Shift+7
+Show Environment                                                        Ctrl+8
+Zoom Environment                                                        Ctrl+Shift+8
+Show Viewer                                                             Ctrl+9
+Zoom Viewer                                                             Ctrl+Shift+9
+Show Git/SVN                                                            Cmd+F1
+Zoom Git/SVN                                                            Ctrl+Shift+F1
+Show Build                                                              Cmd+F2
+Zoom Build                                                              Ctrl+Shift+F2
+Show Connections                                                        No shortcut
+Zoom Connections                                                        Ctrl+Shift+F5
+Show Find in Files Results                                              Cmd+F6
+Zoom Tutorial                                                           Ctrl+Shift+F6
+Sync Editor & PDF Preview                                               Cmd+F8
+Global Options                                                          Cmd+, [comma] (Chrome, Desktop), Option+Cmd+, [comma] (Safari, Firefox)
+Project Options                                                         Shift+Cmd+, [comma]
+============================================================================================================                                      
+Help
+Description                                                             Mac
+Show Keyboard Shortcut Reference                                        Option+Shift+K
+Search R Help                                                           Ctrl+Option+F1
+Find in Help Topic                                                      Cmd+F
+Previous Help Topic                                                     Shift+Option+F2
+Next Help Topic                                                         Shift+Options+F3
+Show Command Palette                                                    Cmd+Shift+P
+============================================================================================================                                              
+Build
+Description                                                                 Mac
+Build and Reload                                                        Cmd+Shift+B
+Load All (devtools)                                                     Cmd+Shift+L
+Test Package (Desktop)                                                  Cmd+Shift+T
+Test Package (Web)                                                      Cmd+Option+F7
+Check Package                                                           Cmd+Shift+E
+Document Package                                                        Cmd+Shift+D 
+============================================================================================================                                             
+Debug
+Description                                                                 Mac
+Toggle Breakpoint                                                       Shift+F9
+Execute Next Line                                                       F10
+Step Into Function                                                      Shift+F4
+Finish Function/Loop                                                    Shift+F7
+Continue                                                                Shift+F5
+Stop Debugging                                                          Shift+F8 
+============================================================================================================                                         
+Plots
+Description                                                                 Mac
+Previous plot                                                           Cmd+Option+F11
+Next plot                                                               Cmd+Option+F12  
+============================================================================================================                                         
+Git/SVN
+Description                                                                 Mac
+Diff active source document                                             Ctrl+Option+D
+Commit changes                                                          Ctrl+Option+M
+Scroll diff view                                                        Ctrl+Up/Down
+Stage/Unstage (Git)                                                     Spacebar
+Stage/Unstage and move to next (Git)                                    Return
+============================================================================================================                                               
+Session
+Description                                                                 Mac
+Quit Session (desktop only)                                             Cmd+Q
+Restart R Session                                                       Cmd+Shift+F10 
+============================================================================================================                                             
+Terminal
+Description                                                                 Mac
+New Terminal                                                            Shift+Option+R
+Move Focus to Terminal                                                  Shift+Option+M
+Previous Terminal                                                       Shift+Option+F11
+Next Terminal                                                           Shift+Option+F12  
+============================================================================================================                                         
+Main Menu (Server)
+Description                                                                 Mac
+File Menu                                                               Ctrl+Option+F
+Edit Menu                                                               Ctrl+Option+I
+Code Menu                                                               Ctrl+Option+C
+View Menu                                                               Ctrl+Option+V
+Plots Menu                                                              Ctrl+Option+P
+Session Menu                                                            Ctrl+Option+S
+Build Menu                                                              Ctrl+Option+B
+Debug Menu                                                              Ctrl+Option+U
+Profile Menu                                                            Ctrl+Option+O
+Tools Menu                                                              Ctrl+Option+T
+Help Menu                                                               Ctrl+Option+H        
+============================================================================================================                                   
+Accessibility
+Description                                                                 Mac
+Toggle Screen Reader Support                                            Ctrl+Option+/
+Toggle Tab Key Always Moves Focus                                       Ctrl+Option+Shift+T
+Speak Text Editor Location                                              Ctrl+Option+Shift+B
+Focus Main Toolbar                                                      Ctrl+Option+Y
+Focus Console Output                                                    Ctrl+Option+2
+Focus Next Pane                                                         F6
+Focus Previous Pane                                                     Shift+F6

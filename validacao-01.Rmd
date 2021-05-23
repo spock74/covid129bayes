@@ -1,0 +1,329 @@
+---
+title: "Covid-19 - Modelagem Causal"
+subtitle: 'Parte I: Aprendizado Bayesiano de estrutura Causal na Síndrome Respiratória
+  Aguda Grave - SRAG'
+date: "17/04/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+--------
+
+$$SRAG^{causal\: modeling} \; \& \; COVID-19_{simulations}$$ 
+
+--------
+
+*Dataset* = https://dados.gov.br/dataset/bd-srag-2021
+
+*Banco de Dados de Síndrome Respiratória Aguda Grave* - **incluindo dados da COVID-19**
+
+Vigilância de Síndrome Respiratória Aguda Grave (SRAG)
+
+O Ministério da Saúde (MS), por meio da Secretaria de Vigilância em Saúde (SVS), desenvolve a vigilância da Síndrome Respiratória Aguda Grave (SRAG) no Brasil, desde a pandemia de Influenza A(H1N1)pdm09 em 2009. A partir disso, esta vigilância foi implantada na rede de Influenza e outros vírus respiratórios, que anteriormente atuava apenas com a vigilância sentinela de Síndrome Gripal (SG).
+
+Recentemente (2020), a vigilância da COVID-19, a infecção humana causada pelo novo Coronavírus, foi incorporada na rede de vigilância da Influenza e outros vírus respiratórios.
+
+Esta página tem como finalidade disponibilizar o legado dos bancos de dados (BD) epidemiológicos de SRAG, da rede de vigilância da Influenza e outros vírus respiratórios, desde o início da sua implantação (2009) até os dias atuais (2021), com a incorporação da vigilância da COVID-19. Atualmente, o sistema oficial para o registro dos casos e óbitos de SRAG é o Sistema de Informação da Vigilância Epidemiológica da Gripe (SIVEP-Gripe).
+
+No Guia de Vigilância Epidemiológica Emergência de Saúde Pública de Importância Nacional pela Doença pelo Coronavírus 2019 estão disponíveis informações sobre definições de casos, critérios de confirmação e encerramento dos casos, dentre outros.
+
+Ressaltamos que os dados da vigilância de SRAG no Brasil disponibilizados nesta página, estão sujeitos a alterações decorrentes da investigação pelas equipes de vigilância epidemiológica que desenvolvem o serviço nas três esferas de gestão.
+
+As bases de dados de SRAG disponibilizadas neste portal passam por tratamento que envolve a anonimização, em cumprimento a legislação.
+
+Os dados de 2021 são disponibilizados semanalmente, às quartas-feiras, podendo, excepcionalmente, a atualização ocorrer em outro dia
+
+Para mais informações, acessar:
+
+Gripe/Influenza - https://saude.gov.br/saude-de-a-z/gripe
+
+COVID-19 - https://coronavirus.saude.gov.br/
+
+Guia Nacional de Vigilância da COVID-19 - https://portalarquivos.saude.gov.br/images/af_gvs_coronavirus_6ago20_ajustes-finais-2.pdf
+
+--------
+
+## Nota
+Este documento é ainda tão somente experimentação e análise exploratória em fase absolutamente incipiente. Por isso a falta de estrutura, gráficos não explicativos, *typos*, etc
+
+# Inferência da estrutura da Rede Causal usando o Algoritmo **mmhc**
+
+-------
+
+```{r libraries, echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(bnstruct))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+```
+
+
+```{r echo=FALSE}
+# library(readr)
+#  dd <- read_delim("dados/INFLUD21-05-04-2021 copy.csv",
+#     ";", escape_double = FALSE, trim_ws = TRUE)
+```
+
+
+```{r echo=FALSE}
+# colunas <- c(
+# #'SG_UF_NOT',
+# 'NU_IDADE_N',
+# 'TP_IDADE',
+# 'FEBRE',
+# #'TOSSE',
+# 'GARGANTA',
+# 'DISPNEIA',
+# #'DESC_RESP',
+# 'SATURACAO',
+# #'DIARREIA',
+# #'VOMITO',
+# #'OUTRO_SIN',
+# #'HOSPITAL',
+# 'EVOLUCAO',
+# 'RENAL',
+# 'DIABETES',
+# 'OBESIDADE',
+# 'PERD_OLFT',
+# 'PERD_PALA',
+# 'NEUROLOGIC',
+# 'PNEUMOPATI',
+# #'IMUNODEPRE',
+# 'UTI',
+# #'VACINA',
+# 'CLASSI_FIN',
+# #'CS_SEXO',
+# #'CS_GESTANT',
+# #'PUERPERA' ,
+# 'CARDIOPATI',
+# 'SUPORT_VEN',
+# #'HEMATOLOGI',
+# #'SIND_DOWN' ,
+# #'HEPATICA' ,
+# 'ASMA',#,
+# 'ANTIVIRAL'
+# #'TP_ANTIVIR'
+# #'RAIOX_RES'
+# )
+```
+
+```{r echo=FALSE}
+#separar grupo de variaveis para analise
+# ddf <- dd[, colunas] %>%
+#   rename(IDADE = NU_IDADE_N) %>%
+#   #filter(CLASSI_FIN == 5) %>%
+#   na.omit(ddf) %>%
+#   filter(TP_IDADE == 3) %>%
+#   mutate_if(is.double,as.factor)  %>%
+#   mutate_if(is.character,as.factor) %>%
+#   select(-TP_IDADE)
+# 
+#   ddf$CLASSI_FIN <- NULL
+# 
+#   ddf$IDADE = as.double(ddf$IDADE)
+#   ddf <- as.data.frame(ddf)
+#rm(dd)
+#glimpse(ddf)
+#saveRDS(ddf, 'ddf.rds')
+  
+  ddf <- readRDS('ddf.rds')
+  ddf <- select(ddf, 
+                #-FEBRE, 
+                -DISPNEIA, 
+                #-GARGANTA, 
+                #-PERD_OLFT, 
+                #-PERD_PALA, 
+                #-SATURACAO#, 
+                #-ASMA, 
+                #-NEUROLOGIC
+                )
+```
+
+## Variáveis selecionadas
+```{r echo=FALSE}
+# discretireadR ze idade
+ddf <- discretize(ddf, method = 'interval') 
+glimpse(ddf)
+```
+
+## Imposição de estrutura com arcos que fazem sentido clínico (*whitelisting*)
+```{r echo=TRUE}
+set.seed(42)
+s1 <- sample_frac(ddf, .9, FALSE)
+cat(nrow(ddf) - nrow(s1))
+wl = matrix(c("OBESIDADE", "DIABETES",
+              #"IDADE", "DIABETES",
+              #"IDADE", "SUPORT_VEN",
+              #"IDADE", "NEUROLOGIC",
+              "RENAL", "EVOLUCAO",
+              "DIABETES", "RENAL",
+              "DIABETES", "CARDIOPATI",
+              "SUPORT_VEN", "EVOLUCAO",
+              "IDADE","EVOLUCAO",
+              "UTI", "EVOLUCAO"),
+        ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+bn1 <- mmhc(s1, whitelist = wl)
+
+# sem WL
+bn2 <- mmhc(s1, whitelist = NULL)
+```
+
+
+
+## Descrição do DAG (*Directed Acyclic Graph*) **sem** *whitelisting* 
+```{r echo=FALSE}
+bn2
+```
+
+
+
+## Descrição do DAG **com** *whitelisting*
+```{r echo=FALSE}
+bn1
+```
+
+
+
+## DAG usando ou não *whitelisting* no algoritmo de aprendizagem
+```{r echo=FALSE}
+par(mfrow = c(1, 2))
+graphviz.plot(bn2, 
+              shape='rectangle', 
+              highlight = NULL, 
+              main = 'DAG sem WL')
+graphviz.plot(bn1, 
+              shape='rectangle', 
+              highlight = list(arcs = wl), 
+              main = 'DAG com imposição de uma WL')
+```
+
+
+
+## Distribuição marginal de probabilidades
+```{r echo=FALSE}
+fitted.1 <- bn.fit(bn1, s1)
+fitted.2 <- bn.fit(bn2, s1)
+
+par(mfrow=c(1,2))
+graphviz.chart(fitted.2,
+               type = "barprob", 
+               col = "darkblue",
+               bg = "azure", 
+               bar.col = "darkblue", 
+               main = "DAG sem WL")
+
+graphviz.chart(fitted.1,  
+               type = "barprob", 
+               col = "darkblue", 
+               bg = "azure", 
+               bar.col = "darkblue", 
+               main = "DAG com WL")
+```
+
+```{r echo=FALSE}
+ptm <- proc.time()
+```
+
+## Obtendo o DAG médio: fase de Bootstrap usando 300 ciclos
+```{r echo=FALSE}
+boots.trap  <- 300
+
+str.diff = boot.strength(s1, 
+                         R = boots.trap, 
+                         algorithm = "mmhc")
+
+avg.diff = averaged.network(str.diff)
+thr <- paste('Thr: ', attr(str.diff, "threshold"))
+
+strength.plot(avg.diff, 
+              str.diff, 
+              shape = "rectangle", 
+              main = paste("Iter = ", boots.trap, thr))
+```
+```{r acho}
+cat(proc.time()-ptm)
+```
+
+
+How can we compare the averaged network (avg.diff) with the network we originally learned in from all the data? The most qualitative way is to plot the two networks side by side, with the nodes in the same positions, and highlight the arcs that appear in one network and not in the other, or that appear with different directions.
+```{r echo=FALSE}
+par(mfrow = c(1, 2))
+graphviz.compare(avg.diff,
+                 bn2,
+                 shape = "rectangle",
+                 main = c("DAG médio", "DAG único sem WL (bn2)"))
+
+
+graphviz.compare(avg.diff,
+                 bn1,
+                 shape = "rectangle",
+                 main = c("DAG médio", "DAG único com WL (bn1)"))
+```
+
+## It is also a good idea to look at the threshold with respect to the distribution of the arc strengths
+```{r echo=FALSE}
+plot(str.diff)
+abline(v = 0.75, col = "tomato", lty = 2, lwd = 2)
+abline(v = 0.85, col = "steelblue", lty = 2, lwd = 2)
+```
+
+The simpler network we obtain by setting **threshold = 0.95** in averaged.network() is shown below; it is certainly easier to reason with from a qualitative point of view. Na figura abaixo R é o número de iterações usadas na fase de *bootstrapping*
+```{r echo=FALSE}
+avg.simpler = averaged.network(str.diff, threshold = 0.95)
+
+par(mfrow = c(1, 2))
+
+strength.plot(avg.diff, 
+              highlight = list((mb(avg.diff, 'EVOLUCAO'))), 
+              str.diff,
+              threshold =  attr(str.diff, "threshold")/2,
+              shape = "rectangle", 
+              main = paste("R = ", 
+                           boots.trap,
+                           " ", 
+                           "Thr = ", 
+                           attr(str.diff, "threshold")/2))
+
+strength.plot(avg.simpler, 
+              highlight = list((mb(avg.simpler, 'EVOLUCAO'))),
+              str.diff, 
+              shape = "rectangle",
+              main = paste("R = ", 
+                           boots.trap,
+                           " Thr = ", 
+                           #attr(avg.simpler, "threshold")))
+                           0.95))
+```
+
+## *Markov Blanket* da variável **EVOLUCAO**
+```{r echo=TRUE}
+cat (mb(x = bn1, node = 'EVOLUCAO'))
+
+cat (mb(x = bn2, node = 'EVOLUCAO'))
+
+cat (mb(x = avg.diff, node = 'EVOLUCAO'))
+##
+cat (mb(x = avg.simpler, node = 'EVOLUCAO'))
+
+#par(mfrow = c(1, 2))
+
+```
+
+```{r echo=FALSE}
+#save the currente workspace
+save(list = ls(all.names = TRUE), 
+     file = "kk_15_sem_neuro_sem_idade_90pc_300it.RData", 
+     envir = .GlobalEnv)
+```
+

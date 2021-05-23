@@ -1,0 +1,64 @@
+---
+title: "Redes Bayesianas como Ferramentas para o Raciocínio Clínico"
+author: "José Elvano Moraes"
+date: "17 de março de 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r echo=FALSE}
+library(bnlearn)
+
+library(tidyverse)
+library(haven)
+library(Rgraphviz)
+```
+Learning Medical Application of Bayesian Networks.
+Usando a package _bnlearn_
+
+```{r echo=FALSE}
+dd_f <- readRDS('dd_feminino_hartemink_breaks_4_seed_2.rds')
+suppressWarnings(bn_fem_iamb <- iamb(dd_f, debug = FALSE))
+graphviz.plot(bn_fem_iamb)
+# Moral
+graphviz.plot(moral(bn_fem_iamb))
+```
+
+```{r echo=FALSE}
+dd_f <- readRDS('dd_feminino_hartemink_breaks_4_seed_2.rds')
+dd_m <- readRDS('dd_masculino_hartemink_breaks_4_seed_2.rds')
+c_m_f <- rbind(dd_m, dd_f)
+suppressWarnings(bn_c_m_f_iamb <- iamb(c_m_f, debug = FALSE))
+graphviz.plot(bn_c_m_f_iamb)
+# Moraal
+graphviz.plot(moral(bn_c_m_f_iamb))
+```
+
+
+```{r echo=FALSE }
+dd_f <- readRDS('dd_feminino_hartemink_breaks_4_seed_2.rds')
+res_f = suppressWarnings(iamb(dd_f))
+R = 100
+graphviz.plot(res_f, main = "Feminino", sub = "subtitulo", highlight = list(nodes=c("gluc", mb(res_f, "gluc"))))
+str.diff_f = suppressWarnings(boot.strength(dd_f, R = R, algorithm = "iamb", debug = FALSE))
+strength_f = filter(str.diff_f, strength>0)
+strength_f
+```
+
+
+
+```{r echo=FALSE}
+dd_f <- readRDS('dd_feminino_hartemink_breaks_4_seed_2.rds')
+dd_m <- readRDS('dd_masculino_hartemink_breaks_4_seed_2.rds')
+
+dd_m_sample = sample_n(dd_m, nrow(dd_f), replace = F)
+res_m_sample = suppressWarnings(iamb(dd_m_sample))
+graphviz.plot(res_m_sample,  main = "Masculino", sub = "subtitulo", highlight = list(nodes=c("gluc", mb(res_m_sample, "gluc"))))
+str.diff_m_sample = suppressWarnings(boot.strength(dd_m_sample, R = 100, algorithm = "iamb", debug = FALSE))
+strength_m_sample = filter(str.diff_m_sample, strength>0.5)
+strength_m_sample  
+```
+
+

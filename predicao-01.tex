@@ -1,0 +1,3628 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+  \usepackage{amssymb}
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Predição},
+  pdfauthor={José Elvano Moraes},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Predição}
+\author{José Elvano Moraes}
+\date{4/20/2021}
+
+\begin{document}
+\maketitle
+
+\hypertarget{redes-bayesianas}{%
+\section{Redes Bayesianas}\label{redes-bayesianas}}
+
+Probabilistic reasoning on BNs works in the framework of Bayesian
+statistics and focuses on the computation of posterior probabilities or
+densities. For example, suppose we have learned a BN B with DAG G and
+parameters Θ. We want to use B to investigate the effects of a new piece
+of evidence E using the knowledge encoded in B, that is, to investigate
+the posterior distribution
+
+\[P(\mathbf{X} | \mathbf{E},\mathbf{\mathcal{B}})=P(\mathbf{X} | \mathbf{E},\mathbf{G},\Theta)\]
+
+The first step of fitting a Bayesian network is called structure
+learning and consists in identifying the graph structure of the Bayesian
+network. Ideally, it should be the minimal I-map of the dependence
+structure of the data or, failing that, it should at least result in a
+dis- tribution as close as possible to the correct one in the
+probability space. Several algorithms have been proposed in the
+literature for structure learning. Despite the variety of theoretical
+backgrounds and terminology, they fall under three broad cate- gories:
+constraint-based, score-based, and hybrid algorithms. As an alternative,
+the network structure can be built manually from the domain knowledge of
+a human expert and prior information available on the data.
+
+he second step is called parameter learning. As the name suggests, it
+imple- ments the estimation of the parameters of the global
+distribution. This task can be performed efficiently by estimating the
+parameters of the local distributions implied by the structure obtained
+in the previous step.
+
+Questions that can be asked are called queries and are typically an
+event of interest. The two most common queries are conditional
+probability (CPQ) and maximum a posteriori (MAP) queries, also known as
+most probable explanation (MPE) queries
+
+\begin{verbatim}
+##  [1] "amostra.90pc.seed.42" "avg.diff"             "avg.simpler"         
+##  [4] "bn.no.wl"             "bn.wl"                "boots.trap"          
+##  [7] "ddf"                  "fitted.no.wl"         "fitted.wl"           
+## [10] "ptm"                  "str.diff"             "thr"                 
+## [13] "wl"
+\end{verbatim}
+
+TODO
+
+With cpquery by setting method = ``lw'' and specifying the evidence as a
+named list with one element for each node we are conditioning on
+
+\includegraphics{predicao-01_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\hypertarget{inferuxeancia}{%
+\section{Inferência}\label{inferuxeancia}}
+
+In practice, probabilistic reasoning on Bayesian networks has its roots
+embedded in Bayesian statistics and focuses on the computation of
+posterior probabilities or densities. For example, suppose we have
+learned a Bayesian network B with. Bayesian inference on the other hand
+is often a follow-up to Bayesian net- work learning and deals with
+inferring the state of a set of variables given the state of others as
+evidence.
+
+Bayesian networks, like other statistical models, can be used to answer
+questions about the nature of the data that go beyond the mere
+description of the observed sample. Techniques used to obtain those
+answers based on new evidence are known in general as inference. For
+Bayesian networks, the process of answering these questions is also
+known as probabilistic reasoning or belief updating, while the questions
+themselves are called queries.
+
+In practice, probabilistic reasoning on Bayesian networks has its roots
+embedded in Bayesian statistics and focuses on the computation of
+posterior probabilities or densities. For example, suppose we have
+learned a Bayesian network B with
+
+structure G and parameters \(\Theta\) , under one of the distributional
+assumptions detailed in Sect. 2.2.4. Subsequently, we want to
+investigate the effects of a new piece of evidence E on the distribution
+of X using the knowledge encoded in B, that is, to investigate the
+posterior distribution \(P(X | E, B) = P(X | E, G, \Theta )\). The
+approaches used for this kind of analysis vary depending on the nature
+of E and on the nature of information we are interested in. The two most
+common kinds of evidence are as follows:
+
+\begin{itemize}
+\item
+  Hard evidence, an instantiation of one or more variables in the
+  network. In other words,
+\item
+  Soft evidence, a new distribution for one or more variables in the
+  network. Since both the network structure and the distributional
+  assumptions are treated as fixed, soft evidence is usually specified
+  as a new set of parameters,
+\end{itemize}
+
+As far as queries are concerned, we will focus on conditional
+probability queries (CPQ) and maximum a posteriori (MAP) queries, also
+known as most probable explanation (MPE) queries. Both apply mainly to
+hard evidence, even though they can be used in combination with soft
+evidence.
+
+\hypertarget{prediuxe7uxe3o}{%
+\subsection{Predição}\label{prediuxe7uxe3o}}
+
+Sabe-se que paciente \textbf{está} no CTI, estima-se qual a distribuição
+marginal de probabilidade das variáveis
+
+\begin{itemize}
+\tightlist
+\item
+  IDADE
+\item
+  RENAL
+\item
+  EVOLUCAO
+\item
+  ANTIVIRAL
+\end{itemize}
+
+\textbf{Oberve que as variáveis RENAL é independentes das demais na
+rede}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{legenda-para-a-interpretauxe7uxe3o-das-probabilidade-das-variuxe1veis}{%
+\subsubsection{Legenda para a interpretação das probabilidade das
+variáveis}\label{legenda-para-a-interpretauxe7uxe3o-das-probabilidade-das-variuxe1veis}}
+
+\textbf{EVOLUCAO}
+
+1 - Cura, 2 - Obito por COVID-19, 3 - Óbito por outras causas, 9 -
+Ignorado
+
+\textbf{ANTIVIRAL}
+
+1 - Oseltamivir, 2 - Zanamivir, 3 - Outro
+
+\textbf{RENAL}
+
+1 - sim, 2 - não, 3 - ignorado
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{cenuxe1rio-1}{%
+\subsubsection{Cenário 1}\label{cenuxe1rio-1}}
+
+\begin{itemize}
+\tightlist
+\item
+  UTI: não
+\item
+  SUPORT\_VEN: não
+\end{itemize}
+
+\begin{verbatim}
+## $IDADE
+## IDADE
+##     [1,37]    (37,73]   (73,109] 
+## 0.07235517 0.67457358 0.25307126 
+## 
+## $RENAL
+## RENAL
+##          1          2          9 
+## 0.05025829 0.92931830 0.02042341 
+## 
+## $EVOLUCAO
+## EVOLUCAO
+##           1           2           3           9 
+## 0.796345814 0.168606496 0.001971596 0.033076094 
+## 
+## $ANTIVIRAL
+## ANTIVIRAL
+##          1          2          9 
+## 0.04336411 0.81539546 0.14124043
+\end{verbatim}
+
+\hypertarget{cenuxe1rio-2}{%
+\subsubsection{Cenário 2}\label{cenuxe1rio-2}}
+
+\begin{itemize}
+\tightlist
+\item
+  UTI: sim
+\item
+  SUPORT\_VEN: invasivo
+\end{itemize}
+
+\begin{verbatim}
+## $IDADE
+## IDADE
+##     [1,37]    (37,73]   (73,109] 
+## 0.05277831 0.62805437 0.31916732 
+## 
+## $RENAL
+## RENAL
+##          1          2          9 
+## 0.05035397 0.92917296 0.02047306 
+## 
+## $EVOLUCAO
+## EVOLUCAO
+##           1           2           3           9 
+## 0.099146161 0.883812087 0.003301859 0.013739893 
+## 
+## $ANTIVIRAL
+## ANTIVIRAL
+##         1         2         9 
+## 0.0373228 0.7959769 0.1667003
+\end{verbatim}
+
+\hypertarget{cenuxe1rio-3}{%
+\subsubsection{Cenário 3}\label{cenuxe1rio-3}}
+
+\begin{itemize}
+\tightlist
+\item
+  UTI: sim
+\item
+  SUPORT\_VEN: nao invasivo
+\end{itemize}
+
+\begin{verbatim}
+## $IDADE
+## IDADE
+##     [1,37]    (37,73]   (73,109] 
+## 0.07658393 0.66716499 0.25625108 
+## 
+## $EVOLUCAO
+## EVOLUCAO
+##           1           2           3           9 
+## 0.467378770 0.508221381 0.001614334 0.022785514 
+## 
+## $RENAL
+## RENAL
+##       1       2       9 
+## 0.05030 0.92924 0.02046 
+## 
+## $ANTIVIRAL
+## ANTIVIRAL
+##          1          2          9 
+## 0.04163633 0.82000347 0.13836020
+\end{verbatim}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{simulauxe7uxe3o}{%
+\section{Simulação}\label{simulauxe7uxe3o}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bn.wl.fit }\OtherTok{\textless{}{-}} \FunctionTok{bn.fit}\NormalTok{(bn.wl, amostra}\FloatTok{.90}\NormalTok{pc.seed.}\FloatTok{42.}\NormalTok{learn)}
+
+\NormalTok{nodos }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"IDADE"}\NormalTok{,}\StringTok{"FEBRE"}\NormalTok{,}\StringTok{"GARGANTA"}\NormalTok{,}\StringTok{"SATURACAO"}\NormalTok{,}
+             \StringTok{"EVOLUCAO"}\NormalTok{,}\StringTok{"RENAL"}\NormalTok{,}\StringTok{"DIABETES"}\NormalTok{,}\StringTok{"OBESIDADE"}\NormalTok{,}
+             \StringTok{"PERD\_OLFT"}\NormalTok{, }\StringTok{"PERD\_PALA"}\NormalTok{, }\StringTok{"NEUROLOGIC"}\NormalTok{,}
+             \StringTok{"PNEUMOPATI"}\NormalTok{,}
+             \StringTok{"UTI"}\NormalTok{,}
+             \StringTok{"CARDIOPATI"}\NormalTok{,}
+             \StringTok{"SUPORT\_VEN"}\NormalTok{, }\StringTok{"ASMA"}\NormalTok{,}\StringTok{"ANTIVIRAL"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{amostra.sim }\OtherTok{=} \FunctionTok{cpdist}\NormalTok{(bn.wl.fit, }
+                          \AttributeTok{nodes =}\NormalTok{ nodos, }
+                          \AttributeTok{evidence =}\NormalTok{ (UTI }\SpecialCharTok{==} \StringTok{"1"}\NormalTok{),}
+                     \AttributeTok{n =} \DecValTok{50000}\NormalTok{)}
+\FunctionTok{glimpse}\NormalTok{(amostra.sim)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 19,279
+## Columns: 17
+## $ IDADE      <fct> "(73,109]", "(37,73]", "[1,37]", "(37,73]", "(37,73]", "(37~
+## $ FEBRE      <fct> 1, 2, 2, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2, 2,~
+## $ GARGANTA   <fct> 1, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2,~
+## $ SATURACAO  <fct> 1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1,~
+## $ EVOLUCAO   <fct> 2, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ RENAL      <fct> 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2,~
+## $ DIABETES   <fct> 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1,~
+## $ OBESIDADE  <fct> 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ PERD_OLFT  <fct> 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ PERD_PALA  <fct> 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2,~
+## $ NEUROLOGIC <fct> 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ PNEUMOPATI <fct> 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ UTI        <fct> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,~
+## $ CARDIOPATI <fct> 1, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1,~
+## $ SUPORT_VEN <fct> 1, 1, 3, 1, 1, 2, 2, 2, 1, 2, 1, 1, 3, 1, 2, 2, 1, 1, 2, 2,~
+## $ ASMA       <fct> 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2,~
+## $ ANTIVIRAL  <fct> 9, 2, 9, 2, 2, 2, 9, 1, 2, 9, 1, 2, 2, 2, 2, 2, 2, 2, 9, 2,~
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{amostra.real }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{filter}\NormalTok{(amostra}\FloatTok{.90}\NormalTok{pc.seed.}\FloatTok{42.}\NormalTok{learn)}
+\CommentTok{\# amostra.real \textless{}{-} dplyr::filter(amostra.90pc.seed.42.learn, UTI == 1)  }
+\NormalTok{amostra.real }\OtherTok{\textless{}{-}} \FunctionTok{sample\_n}\NormalTok{(amostra.real, }
+                         \AttributeTok{size =} \FunctionTok{nrow}\NormalTok{(amostra.sim))[,nodos]}
+\FunctionTok{glimpse}\NormalTok{(amostra.real)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 19,279
+## Columns: 17
+## $ IDADE      <fct> "(73,109]", "(37,73]", "(37,73]", "(73,109]", "(37,73]", "(~
+## $ FEBRE      <fct> 2, 2, 2, 9, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1,~
+## $ GARGANTA   <fct> 2, 1, 2, 9, 1, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 1, 2,~
+## $ SATURACAO  <fct> 1, 2, 1, 1, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2,~
+## $ EVOLUCAO   <fct> 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 9, 1, 1, 2, 2, 2, 1,~
+## $ RENAL      <fct> 2, 2, 2, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ DIABETES   <fct> 1, 1, 1, 9, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2,~
+## $ OBESIDADE  <fct> 1, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ PERD_OLFT  <fct> 2, 2, 2, 9, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2,~
+## $ PERD_PALA  <fct> 2, 2, 2, 9, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 1, 1, 2,~
+## $ NEUROLOGIC <fct> 2, 2, 2, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ PNEUMOPATI <fct> 2, 2, 2, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,~
+## $ UTI        <fct> 1, 2, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 2, 2, 9, 2, 1, 2, 2,~
+## $ CARDIOPATI <fct> 2, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2,~
+## $ SUPORT_VEN <fct> 1, 1, 2, 1, 3, 3, 2, 2, 2, 2, 2, 1, 2, 3, 2, 2, 2, 1, 2, 9,~
+## $ ASMA       <fct> 2, 2, 2, 9, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,~
+## $ ANTIVIRAL  <fct> 9, 2, 2, 9, 2, 2, 2, 2, 9, 2, 9, 9, 1, 2, 9, 2, 2, 9, 9, 9,~
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{amostra.real }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(amostra.real)}
+\NormalTok{amostra.sim }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(amostra.sim)}
+\NormalTok{rede.real }\OtherTok{\textless{}{-}} \FunctionTok{mmhc}\NormalTok{(amostra.real)}
+\NormalTok{rede.sim }\OtherTok{\textless{}{-}} \FunctionTok{mmhc}\NormalTok{(amostra.sim)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\hypertarget{rede-muxe9dia-real-versus-simulada}{%
+\subsection{Rede média real versus
+simulada}\label{rede-muxe9dia-real-versus-simulada}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{start\_time }\OtherTok{\textless{}{-}} \FunctionTok{Sys.time}\NormalTok{()}
+\FunctionTok{cat}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"N real:"}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(amostra.real), }\StringTok{"{-} N sim:"}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(amostra.sim) ))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## N real: 19279 - N sim: 19278
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{boots.trap  }\OtherTok{\textless{}{-}} \DecValTok{300}
+
+\NormalTok{forca.sim }\OtherTok{=} \FunctionTok{boot.strength}\NormalTok{(amostra.sim, }
+                         \AttributeTok{R =}\NormalTok{ boots.trap, }
+                         \AttributeTok{algorithm =} \StringTok{"mmhc"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in check.data(data): variable UTI has levels that are not observed in
+## the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x, allow.missing = TRUE): variable UTI has levels that are
+## not observed in the data.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in check.data(x): variable UTI has levels that are not observed in the
+## data.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{forca.real }\OtherTok{=} \FunctionTok{boot.strength}\NormalTok{(amostra.real, }
+                         \AttributeTok{R =}\NormalTok{ boots.trap, }
+                         \AttributeTok{algorithm =} \StringTok{"mmhc"}\NormalTok{)}
+
+\NormalTok{rede.media.sim }\OtherTok{=} \FunctionTok{averaged.network}\NormalTok{(forca.sim)}
+\NormalTok{rede.media.real }\OtherTok{=} \FunctionTok{averaged.network}\NormalTok{(forca.real)}
+
+\NormalTok{thr.sim }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\StringTok{\textquotesingle{}Thr: \textquotesingle{}}\NormalTok{, }\FunctionTok{attr}\NormalTok{(forca.sim, }\StringTok{"threshold"}\NormalTok{))}
+\NormalTok{thr.real }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\StringTok{\textquotesingle{}Thr: \textquotesingle{}}\NormalTok{, }\FunctionTok{attr}\NormalTok{(forca.real, }\StringTok{"threshold"}\NormalTok{))}
+
+\NormalTok{delta }\OtherTok{\textless{}{-}}\NormalTok{ end\_time }\OtherTok{\textless{}{-}} \FunctionTok{Sys.time}\NormalTok{()}
+\FunctionTok{cat}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"Tempo para "}\NormalTok{, boots.trap, }\StringTok{":"}\NormalTok{, delta))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Tempo para  300 : 2021-04-22 11:24:10
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\FunctionTok{strength.plot}\NormalTok{(rede.media.sim, }
+\NormalTok{              forca.sim, }
+              \AttributeTok{shape =} \StringTok{"rectangle"}\NormalTok{, }
+              \AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"SIM. "}\NormalTok{, }\StringTok{"Thr = "}\NormalTok{ , thr.sim))}
+
+
+
+\FunctionTok{strength.plot}\NormalTok{(rede.media.real, }
+\NormalTok{              forca.real, }
+              \AttributeTok{shape =} \StringTok{"rectangle"}\NormalTok{, }
+              \AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"REAL"}\NormalTok{, }\StringTok{"Thr = "}\NormalTok{, thr.real))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{predicao-01_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{prediuxe7uxe3o-1}{%
+\section{Predição}\label{prediuxe7uxe3o-1}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rede.media.real.dagged }\OtherTok{\textless{}{-}} \FunctionTok{pdag2dag}\NormalTok{(rede.media.real, }
+                                   \AttributeTok{ordering =} \FunctionTok{names}\NormalTok{(amostra.real))}
+
+\NormalTok{rede.media.sim.dagged }\OtherTok{\textless{}{-}} \FunctionTok{pdag2dag}\NormalTok{(rede.media.sim, }
+                                  \AttributeTok{ordering =} \FunctionTok{names}\NormalTok{(amostra.sim))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\FunctionTok{strength.plot}\NormalTok{(rede.media.sim, }
+\NormalTok{              forca.sim, }
+              \AttributeTok{shape =} \StringTok{"rectangle"}\NormalTok{, }
+              \AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"SIM. "}\NormalTok{, }\StringTok{"Thr = "}\NormalTok{ , thr.sim))}
+
+\FunctionTok{strength.plot}\NormalTok{(rede.media.real, }
+\NormalTok{              forca.real, }
+              \AttributeTok{shape =} \StringTok{"rectangle"}\NormalTok{, }
+              \AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"REAL"}\NormalTok{, }\StringTok{"Thr = "}\NormalTok{, thr.real))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{predicao-01_files/figure-latex/unnamed-chunk-16-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fitt.real}\OtherTok{\textless{}{-}} \FunctionTok{bn.fit}\NormalTok{(rede.media.real.dagged, amostra.real)}
+\NormalTok{fitt.sim }\OtherTok{\textless{}{-}} \FunctionTok{bn.fit}\NormalTok{(rede.media.sim.dagged, amostra.sim)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in check.data(data, allow.missing = TRUE): variable UTI has levels that
+## are not observed in the data.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{prob.pred.real }\OtherTok{\textless{}{-}} \FunctionTok{cpquery}\NormalTok{(}\AttributeTok{fitted =}\NormalTok{ fitt.real, }
+                    \AttributeTok{event =}\NormalTok{ (EVOLUCAO }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) , }
+                    \AttributeTok{evidence =} \FunctionTok{list}\NormalTok{(}\AttributeTok{SUPORT\_VEN =} \StringTok{"3"}\NormalTok{), }
+                    \AttributeTok{method =} \StringTok{"lw"}\NormalTok{)}
+
+\NormalTok{prob.pred.sim }\OtherTok{\textless{}{-}} \FunctionTok{cpquery}\NormalTok{(}\AttributeTok{fitted =}\NormalTok{ fitt.sim, }
+                    \AttributeTok{event =}\NormalTok{ (EVOLUCAO }\SpecialCharTok{==} \StringTok{"2"}\NormalTok{) , }
+                    \AttributeTok{evidence =} \FunctionTok{list}\NormalTok{(}\AttributeTok{SUPORT\_VEN =} \StringTok{"3"}\NormalTok{), }
+                    \AttributeTok{method =} \StringTok{"lw"}\NormalTok{)}
+\DocumentationTok{\#\#\#}
+\FunctionTok{cat}\NormalTok{ (}\StringTok{"prob.pred.real:"}\NormalTok{, prob.pred.real}\SpecialCharTok{*}\DecValTok{100}\NormalTok{,}\StringTok{"\%"}\NormalTok{, }\StringTok{"{-}{-} prob.pred.sim:"}\NormalTok{, prob.pred.sim}\SpecialCharTok{*}\DecValTok{100}\NormalTok{, }\StringTok{"\%"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## prob.pred.real: 20.2438 % -- prob.pred.sim: 38.99 %
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}}\NormalTok{ amostra}\FloatTok{.90}\NormalTok{pc.seed.}\FloatTok{42.}\NormalTok{test }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(}
+                              \CommentTok{\#SATURACAO == 1, }
+\NormalTok{                              UTI }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }
+                              \CommentTok{\#FEBRE == 1, }
+                              \CommentTok{\#DIABETES == 2, }
+                              \CommentTok{\#RENAL == 2,}
+                              \CommentTok{\#IDADE == "(37,73]",}
+\NormalTok{                              SUPORT\_VEN }\SpecialCharTok{==} \DecValTok{3}
+\NormalTok{                            )}
+
+\NormalTok{a }\OtherTok{\textless{}{-}} \FunctionTok{filter}\NormalTok{(x, EVOLUCAO }\SpecialCharTok{==} \DecValTok{2}\NormalTok{)}
+
+
+\NormalTok{prob.real }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(a)}\SpecialCharTok{/}\FunctionTok{nrow}\NormalTok{(x)}
+\FunctionTok{cat}\NormalTok{(}\StringTok{"prob.real:"}\NormalTok{, prob.real}\SpecialCharTok{*}\DecValTok{100}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## prob.real: 40.75829
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# testar com }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# outro metodo: usar setEvidence and then querygrain ao invez de cpquery}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}

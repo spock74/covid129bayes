@@ -1,0 +1,192 @@
+---
+title: "São Paulo"
+author: "José Elvano Moraes"
+date: "5/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r libraries, echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(haven))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(precrec))
+suppressPackageStartupMessages(expr = library(ROCR))
+suppressPackageStartupMessages(expr = library(epiR))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(mice))
+```
+
+
+```{r  echo=FALSE}
+library(cvms)
+library(broom)    # tidy()
+library(tibble)   # tibble()
+```
+
+```{r}
+rm(list = ls())
+```
+
+```{r}
+source(file = 'mice-01.R')
+```
+
+
+```{r}
+dd <- get.cols('./dados/INFLUD21_12_04_2021.rds')
+ddf.with.na <- clean.with.nas(dd)
+ddf.without.na <- clean.without.nas(dd)
+rm(dd)
+
+glimpse(ddf.with.na)
+glimpse(ddf.without.na)
+```
+
+
+# IMPUTAÇÂO via MICE package
+---------
+
+```{r}
+  
+  
+```
+
+
+```{r}
+# Discretizar a variá idade
+ddf.without.na <- discretize(ddf.without.na, method = 'interval')
+# Número total de amostras
+nn <- nrow(ddf.without.na)
+# número de amostras do subset test
+n.test <- 10000
+# número de amostras do subset learn
+n.learn <-  nn - n.test
+
+ii.learn <- sample(x = 1:nn, size = n.learn, replace = FALSE)
+ddf.without.na$index = 'T'
+ddf.without.na$index[ii.learn] <- 'L'
+table(ddf.without.na$index)
+
+ddf.without.na.learn <- ddf.without.na %>% 
+  filter(index == "L") 
+
+ddf.without.na.test <- ddf.without.na %>%
+  filter(index=="T")
+```
+
+```{r}
+
+s1 <- ddf.without.na.learn
+s1 <- select(s1, -index, -HOSPITAL)
+
+s2 <- ddf.without.na.test
+s2 <- select(s2, -index, -HOSPITAL)
+#
+glimpse(s1)
+glimpse(s2)
+```
+# TODO
+```{r}
+wl <- matrix(c("OBESIDADE", "DIABETES",
+              "IDADE", "VACINA",
+              "IDADE", "SUPORT_VEN",
+              "CLASSI_FIN", "EVOLUCAO",
+              "OBESIDADE", "EVOLUCAO",
+              "TOMO_RES", "EVOLUCAO",
+              "SUPORT_VEN", "EVOLUCAO",
+              "SATURACAO", "SUPORT_VEN",
+              "IDADE","EVOLUCAO",
+              "UTI", "EVOLUCAO"),
+        ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+bl <- matrix(c("OBESIDADE", "DIABETES",
+               "OBESIDADE", "CLASSI_FIN",
+               "CLASSI_FIN", "OBESIDADE",
+               "UTI", "VACINA"),
+            ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+```
+
+## Rede unica e rede black and withed listed
+```{r}
+s1 <- as.data.frame(s1)
+bnmmhc <- mmhc(s1)
+bnhc <- hc(s1)
+
+bn.mmhc <- mmhc(s1, whitelist = wl, blacklist = bl)
+bn.hc <- hc(s1, whitelist = wl, blacklist = bl)
+
+par(mfrow = c(1, 2))
+graphviz.plot(bn.mmhc, 
+              shape = 'rectangle', 
+              main = "learn mmhc",
+              highlight  = list(mb(bn.mmhc, 'EVOLUCAO')))
+graphviz.plot(bn.hc, 
+              shape = 'rectangle', 
+              main = "learn hc",
+              highlight  = list(mb(bn.hc, 'EVOLUCAO')))
+```
+
+
+
+##Fit dag to data and predict the value of latent variable
+### predicting a variable in the test set.
+```{r}
+training = bn.fit(bn.hc, s1)
+test = s2
+predicted <- predict(training, node = "EVOLUCAO", data = test, method = "bayes-lw")
+s2$PREDICAO <- predicted
+
+s2 <- na.omit(s2)
+basic_table <- table(s2$PREDICAO , s2$EVOLUCAO)
+
+conf_mat <- confusion_matrix(targets = s2$EVOLUCAO,
+                             predictions = s2$PREDICAO)
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
+```
+##Fit dag to data and predict the value of latent variable
+### predicting a variable in the test set.
+```{r}
+training = bn.fit(bn.mmhc, s1)
+test = s2
+predicted <- predict(training, node = "EVOLUCAO", data = test, method = "bayes-lw")
+s2$PREDICAO <- predicted
+
+s2 <- na.omit(s2)
+conf_mat <- confusion_matrix(targets = s2$EVOLUCAO,
+                             predictions = s2$PREDICAO)
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
+```
+
+```{r}
+training = bn.fit(bnhc, s1)
+test = s2
+predicted <- predict(training, node = "EVOLUCAO", data = test, method = "bayes-lw")
+s2$PREDICAO <- predicted
+
+s2 <- na.omit(s2)
+conf_mat <- confusion_matrix(targets = s2$EVOLUCAO,
+                             predictions = s2$PREDICAO)
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
+```
+```{r}
+training = bn.fit(bnmmhc, s1)
+test = s2
+predicted <- predict(training, node = "EVOLUCAO", data = test, method = "bayes-lw")
+s2$PREDICAO <- predicted
+
+s2 <- na.omit(s2)
+conf_mat <- confusion_matrix(targets = s2$EVOLUCAO,
+                             predictions = s2$PREDICAO)
+plot_confusion_matrix(conf_mat$`Confusion Matrix`[[1]])
+```
