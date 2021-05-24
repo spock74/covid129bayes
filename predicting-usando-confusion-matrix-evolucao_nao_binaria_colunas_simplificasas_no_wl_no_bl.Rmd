@@ -1,0 +1,392 @@
+---
+title: "Predição 02 dados de 22 abril 2021"
+author: "José Elvano Moraes"
+date: "4/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r libraries, echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(haven))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(precrec))
+suppressPackageStartupMessages(expr = library(ROCR))
+suppressPackageStartupMessages(expr = library(epiR))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(mice))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(cvms))
+suppressPackageStartupMessages(expr = library(broom))    # tidy()
+suppressPackageStartupMessages(expr = library(tibble))   # tibble()
+```
+
+```{r  echo=FALSE}
+INFLUD21_12_04_2021 <- readRDS('./dados/INFLUD21_12_04_2021.rds')
+```
+
+
+```{r echo=FALSE}
+colunas <- c("CLASSI_FIN", 
+             #"SEM_NOT", 
+            #"DT_SIN_PRI", 
+             #"DT_NASC", 
+             "TP_IDADE",
+             "SG_UF_NOT",
+             #"CO_MUN_RES", 
+             #"DT_NOTIFIC",      
+             "NU_IDADE_N",
+             #"FEBRE",
+             #"GARGANTA",
+             "SATURACAO", 
+             #"VOMITO",
+             "EVOLUCAO",
+             "DIABETES",
+             "OBESIDADE", 
+             #"TOMO_RES",
+             #"CS_GESTANT",
+             #"DOR_ABD", 
+             #"DT_EVOLUCA", 
+             #"CS_RACA", 
+             #"CS_SEXO",
+             #"PERD_OLFT", 
+             #"PERD_PALA", 
+             #"NEUROLOGIC", 
+             #"FADIGA", 
+             #"CRITERIO",
+             #"PNEUMOPATI", 
+             "UTI", 
+             "CARDIOPATI", 
+             #"VACINA", 
+             #"HOSPITAL",
+             #"HEPATICA",
+             "SUPORT_VEN", 
+             #"ASMA",
+             #"ANTIVIRAL", 
+             #"IMUNODEPRE",
+             "OUTRO_SIN"
+             #"RENAL"#, 
+             #"DT_INTERNA"
+             )
+
+dd.with.na <- INFLUD21_12_04_2021[, colunas]
+```
+
+
+# dados contendo NA´s
+```{r  echo=FALSE}
+glimpse(dd.with.na)
+```
+
+# Dados com NA´s omitidos
+```{r}
+dd.without.na <- na.omit(dd.with.na)
+glimpse(dd.without.na)
+```
+
+
+```{r echo=FALSE}
+#separar grupo de variaveis para analise
+
+ddf <- dd.without.na %>%
+  rename(IDADE = NU_IDADE_N) %>%
+  #filter(SG_UF_NOT == "MG") %>%
+  filter(TP_IDADE == 3) %>%
+  filter(EVOLUCAO != 9) %>%
+  filter(UTI != 9) %>%
+  mutate_if(is.double, as.factor)  %>%
+  mutate_if(is.character, as.factor) %>%
+  select(-TP_IDADE)
+
+# dat <- dat %>%
+#     mutate(
+#         Smoking = as.factor(Smoking),
+#         Education = as.factor(Education),
+#         Cholesterol = as.numeric(Cholesterol)
+#     )
+
+ddf$IDADE = as.double(ddf$IDADE)
+  
+# discretize idade
+ddf <- discretize(ddf, method = 'interval') 
+ddf <- as.data.frame(ddf)
+
+glimpse(ddf)
+```
+
+
+```{r  echo=FALSE}
+set.seed(4242)
+nn <- nrow(ddf)
+
+n.test <- round(0.9*nrow(ddf))
+n.learn <-  nn - n.test
+
+ii.learn <- sample(x = 1:nn, size = n.learn, replace = FALSE)
+ddf$index <- 'T'
+ddf$index[ii.learn] <- 'L'
+table(ddf$index)
+```
+
+
+```{r  echo=FALSE}
+# train
+s1 <- filter(ddf, index == "L") 
+s1 <- select(s1,-index, -SG_UF_NOT)
+s1 <- as.data.frame(s1)
+
+# test
+s2 <- filter(ddf, index=="T")
+s2 <- select(s2, -index, -SG_UF_NOT)
+s2 <- as.data.frame(s2)
+```
+
+```{r  echo=FALSE}
+set.seed(4242)
+```   
+
+```{r echo=TRUE}
+train <- s1
+test <- s2
+```
+
+```{r echo=FALSE}
+bn.hc   <- suppressWarnings(hc(train))
+bn.mmhc <- suppressWarnings(mmhc(train))
+bn.gs   <- suppressWarnings(gs(train))
+bn.iamb <- suppressWarnings(iamb(train))
+
+par(mfrow = c(1, 2))
+graphviz.plot(bn.hc, 
+              shape = 'rectangle', 
+              main = "Algo = HC",
+              highlight  = list(nodes = mb(bn.hc, 'EVOLUCAO')))
+graphviz.plot(bn.mmhc, 
+              shape = 'rectangle', 
+              main = "Algo = MMHC",
+              highlight  = list(nodes = mb(bn.mmhc, 'EVOLUCAO')))
+
+par(mfrow = c(1, 2))
+graphviz.plot(bn.gs, 
+              shape = 'rectangle', 
+              main = "Algo = GS",
+              highlight  = list(nodes = mb(bn.gs, 'EVOLUCAO')))
+graphviz.plot(bn.iamb, 
+              shape = 'rectangle', 
+              main = "Algo = IAMB",
+              highlight  = list(nodes = mb(bn.iamb, 'EVOLUCAO')))
+```
+
+
+------------
+
+
+# Predição 
+
+
+## Bootstrap REDE PADRÃO
+
+```{r  echo=FALSE}
+boots.trap <- 100
+start_time <- Sys.time()
+forca.real <- suppressWarnings(boot.strength(train,
+                               R = boots.trap, 
+                               algorithm = "mmhc"))
+
+
+rede.media.train = averaged.network(forca.real)
+
+thr.real <- paste('Thr: ', attr(forca.real, "threshold"))
+
+delta <- Sys.time() - start_time
+cat(paste("Tempo para ", boots.trap, "Bootstraps:", delta, "s"))
+```
+
+
+## Rede "dagged"
+```{r}
+rede.media.train.dagged <- pdag2dag(rede.media.train, 
+                                   ordering = names(train))
+```
+
+```{r echo=FALSE}
+par(mfrow = c(1, 2))
+graphviz.plot(bn.mmhc, 
+              shape = "rectangle", 
+              main = paste("MMHC", thr.real),
+              highlight = list(nodes = mb(bn.mmhc, 'EVOLUCAO')))
+strength.plot(rede.media.train.dagged, 
+              forca.real, 
+              shape = "rectangle", 
+              main = paste("MMHC"), 
+              highlight = list(nodes = mb(bn.mmhc, 'EVOLUCAO')))
+```
+
+
+
+## SET.EVIDENCE + QUERYGRAIN
+```{r echo=TRUE}
+# 
+# [1] "CLASSI_FIN" "IDADE" "OBESIDADE"  "UTI"  "SUPORT_VEN" 
+# 
+
+# IDADE
+# [1,36] (36,71] (71,106]
+
+# UTI
+#  1-Sim 
+#  2-Nao 
+#  9-Ignorado
+
+#SUPORT_VEN
+# 1-Sim, invasivo 
+# 2-Sim, nao invasivo 
+# 3-Nao
+# 9-Ignorado
+# 
+prediga <- function(rede, amostras, estados){
+  
+  fitt1 <- bn.fit(rede, amostras)
+  junction = compile(as.grain(fitt1))
+  jedu = setEvidence(propagate = TRUE, junction,
+                     node = c("CLASSI_FIN",
+                              "IDADE",
+                              "UTI",
+                              "SUPORT_VEN"),
+                     states =  estados)
+  suppressWarnings(pred.rede <- querygrain(jedu,
+                          nodes = c("EVOLUCAO"),
+                          type = "marginal"))
+  return(pred.rede)
+}
+
+estados <- c("5", "(36,71]", "1", "1")
+
+pred.rede <- suppressWarnings(prediga(bn.hc, train, estados))
+
+
+print(pred.rede)
+```
+
+
+## predição por proporção dos dados
+```{r echo=TRUE}
+# usando dataset de test
+x <- filter(test, 
+            CLASSI_FIN == 5, 
+            IDADE == "(36,71]", 
+            UTI == 1, 
+            SUPORT_VEN == 1)
+pred.proporcao <- nrow(filter(x, EVOLUCAO == 1))/nrow(x)
+
+x2 <- filter(test, 
+            CLASSI_FIN == 5, 
+            IDADE == "(36,71]", 
+            UTI == 1, 
+            SUPORT_VEN == 1)
+pred.proporcao2 <- nrow(filter(x, EVOLUCAO == 2))/nrow(x)
+
+print(pred.proporcao)
+
+print(pred.proporcao2)
+```
+
+# Fit dag to data and predict the value of latent variable
+
+## predicting a variable in the test set. UTI rede simplificada
+
+```{r echo=FALSE}
+training.dagged <- bn.fit(rede.media.train.dagged, train)
+
+predicted  <- predict(training.dagged,  
+                      node = "UTI", 
+                      data = test, 
+                      method = "bayes-lw")
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.uti  <- confusion_matrix(targets = test$UTI,
+                                  predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.uti$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$UTI, test$PREDICAO), conf.level = 0.95))
+```
+
+## predicting a variable in the test set. UTI rede completa
+
+```{r echo=FALSE}
+training.hc <- bn.fit(bn.hc, train)
+predicted  <- predict(training.hc,  
+                      node = "UTI", 
+                      data = test, 
+                      method = "bayes-lw")
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.uti2  <- confusion_matrix(targets = test$UTI,
+                                  predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.uti2$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$UTI, test$PREDICAO), conf.level = 0.95))
+```
+
+
+## predicting a variable in the test set. EVOLUCAO
+
+```{r echo=FALSE}
+training.mmhc  <- bn.fit(bn.mmhc, train)
+predicted  <- predict(training.mmhc,  
+                      node = "EVOLUCAO", 
+                      data = test, 
+                      method = "bayes-lw")
+
+test$PREDICAO  <- predicted
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                       predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
+```
+## predicting a variable in the test set. EVOLUCAO rede simplificada
+
+```{r echo=FALSE}
+training.dagged <- bn.fit(rede.media.train.dagged, train)
+
+predicted  <- predict(training.dagged,  
+                      node = "EVOLUCAO", 
+                      data = test, 
+                      method = "bayes-lw")
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                  predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
+```
+
+
