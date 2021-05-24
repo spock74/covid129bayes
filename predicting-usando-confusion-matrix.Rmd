@@ -24,13 +24,9 @@ suppressPackageStartupMessages(expr = library(ROCR))
 suppressPackageStartupMessages(expr = library(epiR))
 suppressPackageStartupMessages(expr = library(ROCit))
 suppressPackageStartupMessages(expr = library(mice))
-```
-
-
-```{r  echo=FALSE}
-library(cvms)
-library(broom)    # tidy()
-library(tibble)   # tibble()
+suppressPackageStartupMessages(expr = library(cvms))
+suppressPackageStartupMessages(expr = library(broom))    # tidy()
+suppressPackageStartupMessages(expr = library(tibble)) 
 ```
 
 ```{r}
@@ -139,28 +135,28 @@ graphviz.plot(bn.hc,
 ##Fit dag to data and predict the value of latent variable
 ### predicting a variable in the test set.
 ```{r}
-bn.hc.wl.bl <- hc(s1, whitelist = wl, blacklist = bl)
-training  <- bn.fit(bn.hc.wl.bl, s1)
-training2 <- bn.fit(bn.hc.wl.bl, s1, method = "bayes", iss = 10)
-predicted  <- predict(training,  node = "EVOLUCAO", data = s2, method = "bayes-lw")
-predicted2 <- predict(training2, node = "EVOLUCAO", data = s2, method = "bayes-lw")
-s2$PREDICAO  <- predicted
-s2$PREDICAO2 <- predicted2
+train <- s1
+test <- s2
 
-s2 <- na.omit(s2)
+bn.hc <- hc(s1, whitelist = wl, blacklist = bl)
 
-conf_mat1  <- confusion_matrix(targets = s2$EVOLUCAO,
+training  <- bn.fit(bn.hc, s1)
+predicted  <- predict(training,  node = "EVOLUCAO", data = test, method = "bayes-lw")
+
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = s2$EVOLUCAO,
                               predictions = s2$PREDICAO)
-conf_mat2 <- confusion_matrix(targets = s2$EVOLUCAO,
-                              predictions = s2$PREDICAO2)
-par(mfrow = c(1, 2))
-plot_confusion_matrix(conf_mat1$`Confusion Matrix`[[1]])
-plot_confusion_matrix(conf_mat2$`Confusion Matrix`[[1]])
+
+par(mfrow = c(1, ))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
 ```
 
 
 ##Fit dag to data and predict the value of latent variable
-### predicting a variable in the test set.
+### predicting a variable in the test set. EVOLUCAO
 ```{r}
 training = bn.fit(bn.mmhc, s1)
 training2 = bn.fit(bn.mmhc, s1, method = "bayes", iss = 100)

@@ -24,30 +24,11 @@ suppressPackageStartupMessages(expr = library(ROCR))
 suppressPackageStartupMessages(expr = library(epiR))
 suppressPackageStartupMessages(expr = library(ROCit))
 suppressPackageStartupMessages(expr = library(mice))
+suppressPackageStartupMessages(expr = library(mice))
+suppressPackageStartupMessages(expr = library(cvms))
+suppressPackageStartupMessages(expr = library(broom))    # tidy()
+suppressPackageStartupMessages(expr = library(tibble)) 
 ```
-
-```{r}
-rm(list = ls())
-# library(readr)
-#  INFLUD21_12_04_2021 <- read_delim("./dados/INFLUD21-12-04-2021.csv", 
-#      ";", escape_double = FALSE, trim_ws = TRUE)
-```
-
-```{r}
-###
-#spec.parsing.INFLUD21_12_04_2021 <-  spec(INFLUD21_12_04_2021)
-#erros.parsing.INFLUD21_12_04_2021 <- problems(INFLUD21_12_04_2021)
-# save(list = c('spec.parsing.INFLUD21_12_04_2021'), 
-#      file = './dados/spec.parsing.INFLUD21_12_04_2021.RData', envir = .GlobalEnv)
-# save(list = c('erros.parsing.INFLUD21_12_04_2021'), 
-#      file = './dados/erros.parsing.INFLUD21_12_04_2021.RData', envir = .GlobalEnv)
-###
-
-###
-#saveRDS(INFLUD21_12_04_2021, './dados/INFLUD21_12_04_2021.rds')
-###
-```
-
 
 ```{r}
 INFLUD21_12_04_2021 <- readRDS('./dados/INFLUD21_12_04_2021.rds')
@@ -56,7 +37,7 @@ INFLUD21_12_04_2021 <- readRDS('./dados/INFLUD21_12_04_2021.rds')
 
 ```{r}
 colunas <- c("CLASSI_FIN", 
-             "SEM_NOT", 
+             #"SEM_NOT", 
              #"DT_SIN_PRI", 
              #"DT_NASC", 
              "TP_IDADE",

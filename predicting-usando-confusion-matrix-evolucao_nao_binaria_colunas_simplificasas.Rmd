@@ -53,27 +53,27 @@ colunas <- c("CLASSI_FIN",
              "EVOLUCAO",
              "DIABETES",
              "OBESIDADE", 
-             "TOMO_RES",
+             #"TOMO_RES",
              #"CS_GESTANT",
-             "DOR_ABD", 
+             #"DOR_ABD", 
              #"DT_EVOLUCA", 
              #"CS_RACA", 
              #"CS_SEXO",
-             "PERD_OLFT", 
-             "PERD_PALA", 
+             #"PERD_OLFT", 
+             #"PERD_PALA", 
              #"NEUROLOGIC", 
              #"FADIGA", 
              #"CRITERIO",
-             "PNEUMOPATI", 
+             #"PNEUMOPATI", 
              "UTI", 
              "CARDIOPATI", 
-             "VACINA", 
-             "HOSPITAL",
+             #"VACINA", 
+             #"HOSPITAL",
              #"HEPATICA",
              "SUPORT_VEN", 
-             "ASMA",
+             #"ASMA",
              #"ANTIVIRAL", 
-             "IMUNODEPRE",
+             #"IMUNODEPRE",
              "OUTRO_SIN"
              #"RENAL"#, 
              #"DT_INTERNA"
@@ -100,9 +100,10 @@ glimpse(dd.without.na)
 
 ddf <- dd.without.na %>%
   rename(IDADE = NU_IDADE_N) %>%
-  filter(SG_UF_NOT == "SP") %>%
+  #filter(SG_UF_NOT == "MG") %>%
   filter(TP_IDADE == 3) %>%
-  #filter(CLASSI_FIN == 5) %>%
+  #filter(EVOLUCAO == 1 | EVOLUCAO == 2) %>%
+  filter(UTI != 9) %>%
   mutate_if(is.double, as.factor)  %>%
   mutate_if(is.character, as.factor) %>%
   select(-TP_IDADE)
@@ -141,12 +142,12 @@ table(ddf$index)
 ```{r  echo=FALSE}
 # train
 s1 <- filter(ddf, index == "L") 
-s1 <- select(s1,-index, -SG_UF_NOT, -HOSPITAL)
+s1 <- select(s1,-index, -SG_UF_NOT)
 s1 <- as.data.frame(s1)
 
 # test
 s2 <- filter(ddf, index=="T")
-s2 <- select(s2, -index, -SG_UF_NOT, -HOSPITAL)
+s2 <- select(s2, -index, -SG_UF_NOT)
 s2 <- as.data.frame(s2)
 ```
 
@@ -156,22 +157,22 @@ set.seed(4242)
 
 ```{r  echo=FALSE}
 wl <- matrix(c("OBESIDADE", "DIABETES",
-              "IDADE", "VACINA",
+              #"IDADE", "VACINA",
               "IDADE", "SUPORT_VEN",
-              #"CLASSI_FIN", "EVOLUCAO",
+              "CLASSI_FIN", "EVOLUCAO",
               "OBESIDADE", "EVOLUCAO",
-              "OBESIDADE", "EVOLUCAO",
-              "PERD_OLFT", "SATURACAO",
+              #"PERD_OLFT", "SATURACAO",
               "SUPORT_VEN", "EVOLUCAO",
               "SATURACAO", "SUPORT_VEN",
               "IDADE","EVOLUCAO",
               "UTI", "EVOLUCAO"),
               ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
 
-bl <- matrix(c("OBESIDADE", "DIABETES",
+bl <- matrix(c("OBESIDADE", "DIABETES"
                #"OBESIDADE", "CLASSI_FIN",
                #"CLASSI_FIN", "OBESIDADE",
-               "UTI", "VACINA"),
+               #"UTI", "VACINA"
+               ),
              ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
 ```
 
@@ -209,17 +210,22 @@ graphviz.plot(bn.iamb,
 # Predição 
 
 
+```{r echo=TRUE}
+train <- s1
+test <- s2
+```
+
 ## Bootstrap REDE PADRÃO
 
 ```{r  echo=FALSE}
 boots.trap <- 100
 start_time <- Sys.time()
-forca.real <- suppressWarnings(boot.strength(s1,
+forca.real <- suppressWarnings(boot.strength(train,
                                R = boots.trap, 
                                algorithm = "mmhc"))
 
 
-rede.media.s1 = averaged.network(forca.real)
+rede.media.train = averaged.network(forca.real)
 
 thr.real <- paste('Thr: ', attr(forca.real, "threshold"))
 
@@ -227,10 +233,11 @@ delta <- Sys.time() - start_time
 cat(paste("Tempo para ", boots.trap, "Bootstraps:", delta, "s"))
 ```
 
+
 ## Rede "dagged"
 ```{r}
-rede.media.s1.dagged <- pdag2dag(rede.media.s1, 
-                                   ordering = names(s1))
+rede.media.train.dagged <- pdag2dag(rede.media.train, 
+                                   ordering = names(train))
 ```
 
 ```{r echo=FALSE}
@@ -239,7 +246,7 @@ graphviz.plot(bn.mmhc,
               shape = "rectangle", 
               main = paste("MMHC", thr.real),
               highlight = list(nodes = mb(bn.mmhc, 'EVOLUCAO')))
-strength.plot(rede.media.s1, 
+strength.plot(rede.media.train.dagged, 
               forca.real, 
               shape = "rectangle", 
               main = paste("MMHC"), 
@@ -248,10 +255,6 @@ strength.plot(rede.media.s1,
 
 
 
-```{r echo=TRUE}
-train <- s1
-test <- s2
-```
 ## SET.EVIDENCE + QUERYGRAIN
 ```{r echo=TRUE}
 # 
@@ -309,14 +312,24 @@ x <- filter(test,
             SUPORT_VEN == 3)
 pred.proporcao <- nrow(filter(x, EVOLUCAO == 1))/nrow(x)
 
+x2 <- filter(test, 
+            #CLASSI_FIN == 5, 
+            IDADE == "(36,71]", 
+            OBESIDADE == 1, 
+            UTI == 2, 
+            SUPORT_VEN == 3)
+pred.proporcao2 <- nrow(filter(x, EVOLUCAO == 2))/nrow(x)
+
 print(pred.proporcao)
+
+print(pred.proporcao2)
 ```
 
 # Fit dag to data and predict the value of latent variable
 
 ## predicting a variable in the test set. UTI rede simplificada
 ```{r echo=FALSE}
-training.dagged <- bn.fit(rede.media.s1.dagged, train)
+training.dagged <- bn.fit(rede.media.train.dagged, train)
 
 predicted  <- predict(training.dagged,  
                       node = "UTI", 
@@ -331,6 +344,8 @@ conf_mat.uti  <- confusion_matrix(targets = test$UTI,
 
 par(mfrow = c(1, 1))
 plot_confusion_matrix(conf_mat.uti$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$UTI, test$PREDICAO), conf.level = 0.95))
 ```
 
 ## predicting a variable in the test set. UTI rede completa
@@ -349,13 +364,15 @@ conf_mat.uti2  <- confusion_matrix(targets = test$UTI,
 
 par(mfrow = c(1, 1))
 plot_confusion_matrix(conf_mat.uti2$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$UTI, test$PREDICAO), conf.level = 0.95))
 ```
 
 
 ## predicting a variable in the test set. EVOLUCAO
 ```{r echo=FALSE}
-training.hc  <- bn.fit(bn.hc, train)
-predicted  <- predict(training.hc,  
+training.mmhc  <- bn.fit(bn.mmhc, train)
+predicted  <- predict(training.mmhc,  
                       node = "EVOLUCAO", 
                       data = test, 
                       method = "bayes-lw")
@@ -369,24 +386,27 @@ conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
 par(mfrow = c(1, 1))
 plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
 
+#print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
 ```
-
-## predicting a variable in the test set. TOMO_RES
+## predicting a variable in the test set. EVOLUCAO rede simplificada
 ```{r echo=FALSE}
-training.hc  <- bn.fit(bn.hc, train)
+training.dagged <- bn.fit(rede.media.train.dagged, train)
 
-predicted  <- predict(training.hc,  
-                      node = "TOMO_RES", 
+predicted  <- predict(training.dagged,  
+                      node = "EVOLUCAO", 
                       data = test, 
                       method = "bayes-lw")
-
 test$PREDICAO  <- predicted
+
 test <- na.omit(test)
 
-conf_mat.tomo.res  <- confusion_matrix(targets = test$TOMO_RES,
-                                       predictions = test$PREDICAO)
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                  predictions = test$PREDICAO)
 
 par(mfrow = c(1, 1))
-plot_confusion_matrix(conf_mat.tomo.res$`Confusion Matrix`[[1]])
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
 
+#print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
 ```
+
+
