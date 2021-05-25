@@ -1,7 +1,7 @@
 ---
-title: "Predição 02 dados de 22 abril 2021"
+title: "Predição"
 author: "José Elvano Moraes"
-date: "4/24/2021"
+date: "25/maio/2021"
 output: html_document
 ---
 
@@ -299,7 +299,8 @@ prediga <- function(rede, amostras, estados){
   fitt1 <- bn.fit(rede, amostras)
   junction = compile(as.grain(fitt1))
   jedu = setEvidence(propagate = TRUE, junction,
-                     node = c("CLASSI_FIN",
+                     node = c("OBESIDADE",
+                              "CLASSI_FIN",
                               "IDADE",
                               "UTI",
                               "SUPORT_VEN"),
@@ -310,7 +311,7 @@ prediga <- function(rede, amostras, estados){
   return(pred.rede)
 }
 
-estados <- c("51", "(36,71]", "1", "1")
+estados <- c("1", "5", "(38.6667,76.3333]", "1", "1")
 
 pred.rede <- suppressWarnings(prediga(bn.hc, train, estados))
 
@@ -323,22 +324,33 @@ print(pred.rede)
 ```{r echo=TRUE}
 # usando dataset de test
 x <- filter(test, 
+            OBESIDADE == 1,
             CLASSI_FIN == 5, 
             IDADE == "(38.6667,76.3333]", 
             UTI == 1, 
             SUPORT_VEN == 1)
-pred.proporcao <- nrow(filter(x, EVOLUCAO == 1))/nrow(x)
+pred.proporcao1 <- nrow(filter(x, EVOLUCAO == 1))/nrow(x)
 
 x2 <- filter(test, 
-            CLASSI_FIN == 5, 
-            IDADE == "(38.6667,76.3333]", 
-            UTI == 1, 
-            SUPORT_VEN == 1)
+             OBESIDADE == 1,
+             CLASSI_FIN == 5, 
+             IDADE == "(38.6667,76.3333]", 
+             UTI == 1, 
+             SUPORT_VEN == 1)
 pred.proporcao2 <- nrow(filter(x2, EVOLUCAO == 2))/nrow(x2)
 
-print(pred.proporcao)
+x3 <- filter(test, 
+             OBESIDADE == 1,
+             CLASSI_FIN == 5, 
+             IDADE == "(38.6667,76.3333]", 
+             UTI == 1, 
+             SUPORT_VEN == 1)
+pred.proporcao3 <- nrow(filter(x2, EVOLUCAO == 3))/nrow(x3)
 
+
+print(pred.proporcao1)
 print(pred.proporcao2)
+print(pred.proporcao3)
 ```
 
 # Fit dag to data and predict the value of latent variable
@@ -368,8 +380,8 @@ plot_confusion_matrix(conf_mat.uti$`Confusion Matrix`[[1]])
 ## predicting a variable in the test set. UTI rede completa
 
 ```{r echo=FALSE}
-training.mmhc <- bn.fit(bn.mmhc, train)
-predicted  <- predict(training.mmhc,  
+training.hc <- bn.fit(bn.hc, train)
+predicted  <- predict(training.hc,  
                       node = "UTI", 
                       data = test, 
                       method = "bayes-lw")
@@ -387,11 +399,11 @@ plot_confusion_matrix(conf_mat.uti2$`Confusion Matrix`[[1]])
 ```
 
 
-## predicting a variable in the test set. EVOLUCAO
+## predicting a variable in the test set. EVOLUCAO completa
 
 ```{r echo=FALSE}
-training.mmhc  <- bn.fit(bn.mmhc, train)
-predicted  <- predict(training.mmhc,  
+training.hc  <- bn.fit(bn.hc, train)
+predicted  <- predict(training.hc,  
                       node = "EVOLUCAO", 
                       data = test, 
                       method = "bayes-lw")
@@ -399,11 +411,11 @@ predicted  <- predict(training.mmhc,
 test$PREDICAO  <- predicted
 test <- na.omit(test)
 
-conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+conf_mat.evolucao.c  <- confusion_matrix(targets = test$EVOLUCAO,
                                        predictions = test$PREDICAO)
 
 par(mfrow = c(1, 1))
-plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+plot_confusion_matrix(conf_mat.evolucao.c$`Confusion Matrix`[[1]])
 
 #print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
 ```
@@ -420,11 +432,11 @@ test$PREDICAO  <- predicted
 
 test <- na.omit(test)
 
-conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+conf_mat.evolucao.s  <- confusion_matrix(targets = test$EVOLUCAO,
                                   predictions = test$PREDICAO)
 
 par(mfrow = c(1, 1))
-plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+plot_confusion_matrix(conf_mat.evolucao.s$`Confusion Matrix`[[1]])
 
 #print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
 ```
