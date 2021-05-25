@@ -94,6 +94,11 @@ dd.without.na <- na.omit(dd.with.na)
 glimpse(dd.without.na)
 ```
 
+# impute data
+```{r}
+
+
+```
 
 ```{r echo=FALSE}
 #separar grupo de variaveis para analise
@@ -167,9 +172,6 @@ bl <- matrix(c("UTI", "SUPORT_VEN",
 
 bn.hc   <- suppressWarnings(hc(train, blacklist = bl))
 bn.mmhc <- suppressWarnings(mmhc(train, blacklist = bl))
-bn.gs   <- suppressWarnings(gs(train, blacklist = bl))
-bn.iamb <- suppressWarnings(iamb(train, blacklist = bl))
-
 par(mfrow = c(1, 2))
 graphviz.plot(bn.hc, 
               shape = 'rectangle', 
@@ -179,16 +181,50 @@ graphviz.plot(bn.mmhc,
               shape = 'rectangle', 
               main = "Algo = MMHC",
               highlight  = list(nodes = mb(bn.mmhc, 'EVOLUCAO')))
+```
+
+
+```{r echo=FALSE}
+bn.gs   <- suppressWarnings(gs(train, blacklist = bl))
+rede.gs.dagged <- pdag2dag(bn.gs, 
+                           ordering = names(train))
+bn.aracne <- suppressWarnings(aracne(train, blacklist = bl))
+rede.aracne.dagged <- pdag2dag(bn.aracne, 
+                               ordering = names(train))
+bn.iamb <- suppressWarnings(iamb(train, blacklist = bl))
+rede.iamb.dagged <- pdag2dag(bn.iamb, 
+                            ordering = names(train))
+
 
 par(mfrow = c(1, 2))
 graphviz.plot(bn.gs, 
               shape = 'rectangle', 
               main = "Algo = GS",
               highlight  = list(nodes = mb(bn.gs, 'EVOLUCAO')))
+graphviz.plot(rede.gs.dagged, 
+              shape = 'rectangle', 
+              main = "Algo = bn.gs.dagged",
+              highlight  = list(nodes = mb(rede.gs.dagged, 'EVOLUCAO')))
+
+par(mfrow = c(1, 2))
+graphviz.plot(bn.aracne, 
+              shape = 'rectangle', 
+              main = "Algo = ARACNE",
+              highlight  = list(nodes = mb(bn.aracne, 'EVOLUCAO')))
+graphviz.plot(rede.aracne.dagged, 
+              shape = 'rectangle', 
+              main = "Algo = bn.aracne.dagged",
+              highlight  = list(nodes = mb(rede.aracne.dagged, 'EVOLUCAO')))
+
+par(mfrow = c(1, 2))
 graphviz.plot(bn.iamb, 
               shape = 'rectangle', 
-              main = "Algo = IAMB",
+              main = "Algo = bn.iamb",
               highlight  = list(nodes = mb(bn.iamb, 'EVOLUCAO')))
+graphviz.plot(rede.iamb.dagged, 
+              shape = 'rectangle', 
+              main = "Algo = bn.iamb.dagged",
+              highlight  = list(nodes = mb(rede.iamb.dagged, 'EVOLUCAO')))
 ```
 
 
@@ -201,7 +237,7 @@ graphviz.plot(bn.iamb,
 ## Bootstrap REDE PADRÃO
 
 ```{r  echo=FALSE}
-boots.trap <- 100
+boots.trap <- 10
 start_time <- Sys.time()
 forca.real <- suppressWarnings(boot.strength(train,
                                R = boots.trap, 
