@@ -2,7 +2,9 @@
 title: "Predição"
 author: "José Elvano Moraes"
 date: "25/maio/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
