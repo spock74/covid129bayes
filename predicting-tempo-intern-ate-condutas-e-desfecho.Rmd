@@ -1,0 +1,617 @@
+---
+title: "Predição. Dados de 22 abril 2021"
+author: "José Elvano Moraes"
+date: "02/junho/2021"
+output:
+  pdf_document: default
+  html_document: default
+subtitle: Efeito do tempo de internação até entrada na UTI versus desfecho
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# SRAG 12/04/2021
+URL: https://s3-sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2021/INFLUD21-12-04-2021.csv
+
+Do resumo do conjunto de dados
+Vigilância de Síndrome Respiratória Aguda Grave (SRAG) O Ministério da Saúde (MS), por meio da Secretaria de Vigilância em Saúde (SVS), desenvolve a vigilância da Síndrome Respiratória...
+Fonte: SRAG 2021 - Banco de Dados de Síndrome Respiratória Aguda Grave - incluindo dados da COVID-19
+
+# Dicionário de Dados
+URL: https://opendatasus.saude.gov.br/dataset/9f76e80f-a2f1-4662-9e37-71084eae23e3/resource/b3321e55-24e9-49ab-8651-29cf5c8f3179/download/dicionario-de-dados-srag-hospitalizado-27.07.2020-final.pdf
+
+## Do resumo do conjunto de dados
+Vigilância de Síndrome Respiratória Aguda Grave (SRAG) O Ministério da Saúde (MS), por meio da Secretaria de Vigilância em Saúde (SVS), desenvolve a vigilância da Síndrome Respiratória...
+Fonte: SRAG 2021 - Banco de Dados de Síndrome Respiratória Aguda Grave - incluindo dados da COVID-19
+
+
+
+
+```{r libraries, echo=FALSE}
+suppressPackageStartupMessages(expr = library(tidyverse))
+suppressPackageStartupMessages(expr = library(haven))
+suppressPackageStartupMessages(expr = library(bnlearn))
+suppressPackageStartupMessages(expr = library(Rgraphviz))
+suppressPackageStartupMessages(expr = library(gRain))
+suppressPackageStartupMessages(expr = library(Rmpfr))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(precrec))
+suppressPackageStartupMessages(expr = library(ROCR))
+suppressPackageStartupMessages(expr = library(epiR))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(mice))
+suppressPackageStartupMessages(expr = library(ROCit))
+suppressPackageStartupMessages(expr = library(readr))
+suppressPackageStartupMessages(expr = library(cvms))
+suppressPackageStartupMessages(expr = library(broom))    # tidy()
+suppressPackageStartupMessages(expr = library(tibble))   # tibble()
+```
+
+# Variaveis disponíveis e números de valores faltantes para cada uma
+```{r  echo=FALSE}
+INFLUD21_12_04_2021 <- readRDS('./dados/INFLUD21_12_04_2021.rds')
+## > nrow(INFLUD21_12_04_2021)
+## [1] 543745
+for (ii in c(1:ncol(INFLUD21_12_04_2021))) {
+  paste(cat(names(INFLUD21_12_04_2021[ii]), 
+              "\t",
+              sum(is.na(INFLUD21_12_04_2021[, ii])),
+              "\n")
+            )
+}
+
+boots.trap = 20
+```
+
+## variáveis usadas
+```{r echo=FALSE}
+colunas <- c("CLASSI_FIN", 
+             "DT_SIN_PRI", 
+             #"DT_INTERNA",
+             "DT_EVOLUCA", 
+             "EVOLUCAO",
+             #"SEM_NOT", 
+             #"DT_NASC", 
+             "TP_IDADE",
+             "SG_UF_NOT",
+             #"CO_MUN_RES", 
+             #"DT_NOTIFIC",      
+             "NU_IDADE_N",
+             #"FEBRE",
+             #"GARGANTA",
+             "SATURACAO", 
+             #"VOMITO",
+             "DIABETES",
+             "OBESIDADE", 
+             #"CS_GESTANT",
+             #"DOR_ABD", 
+            # "CS_RACA", 
+             #"CS_SEXO",
+             #"PERD_OLFT", 
+             #"PERD_PALA", 
+             #"NEUROLOGIC", 
+             #"FADIGA", 
+             #"CRITERIO",
+             #"PNEUMOPATI", 
+             "UTI", 
+             "DT_ENTUTI",
+             #"DT_SAIDUTI",
+             "CARDIOPATI", 
+             #"VACINA", 
+             #"DT_TOMO",
+             #"TOMO_RES",
+             #"DT_RAIOX",
+             #"RAIOX_RES",
+             #"HEPATICA",
+             "SUPORT_VEN"#, 
+             #"ASMA",
+             #"ANTIVIRAL", 
+             #"IMUNODEPRE",
+             #"OUTRO_SIN"#,
+             #"RENAL"#, 
+             )
+
+dd.with.na <- INFLUD21_12_04_2021[, colunas]
+
+dd.without.na <- na.omit(dd.with.na)
+```
+
+
+## dados contendo NA´s
+```{r  echo=FALSE}
+
+
+glimpse(dd.with.na)
+glimpse(dd.without.na)
+```
+
+## Dados com NA´s omitidos
+```{r echo=FALSE}
+dd.without.na$DT_SIN_PRI <- strptime(as.character(dd.without.na$DT_SIN_PRI), "%d/%m/%Y")
+dd.without.na$DT_EVOLUCA <- strptime(as.character(dd.without.na$DT_EVOLUCA), "%d/%m/%Y")
+dd.without.na$DT_ENTUTI<-  strptime(as.character(dd.without.na$DT_ENTUTI), "%d/%m/%Y")
+#dd.without.na$DT_SAIDUTI <- strptime(as.character(dd.without.na$DT_SAIDUTI), "%d/%m/%Y")
+#dd.without.na$DT_TOMO <-    strptime(as.character(dd.without.na$DT_TOMO), "%d/%m/%Y")
+#dd.without.na$DT_RAIOX <-   strptime(as.character(dd.without.na$DT_RAIOX), "%d/%m/%Y")
+
+
+glimpse(dd.without.na)
+```
+
+
+## cria colunas com intervalos de tempo
+```{r echo=FALSE}
+### -------------------------------------------------------------------------
+### time1 - time2
+### 
+### difftime(time1, time2, tz,
+###          units = c("auto", "secs", "mins", "hours",
+###                    "days", "weeks"))
+### 
+### as.difftime(tim, format = "%X", units = "auto", tz = "UTC")
+### -------------------------------------------------------------------------
+
+
+
+#separar grupo de variaveis para analise
+
+ddf <- dd.without.na %>%
+  rename(IDADE = NU_IDADE_N) %>%
+  #filter(SG_UF_NOT == "MG") %>%
+  filter(TP_IDADE == 3) %>%
+  #filter(EVOLUCAO != 9) %>%
+  #filter(UTI != 9) %>%
+  mutate_if(is.double, as.factor)  %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(INTER_P_SIN_EVOL = difftime(DT_EVOLUCA, 
+                                     DT_SIN_PRI, 
+                                     tz = "UTC", 
+                                     units = "days")) %>%
+  mutate(INTER_P_SIN_UTI = difftime(DT_ENTUTI,
+                                    DT_SIN_PRI,
+                                    tz = "UTC", 
+                                    units = "days")) %>%  
+  select(-TP_IDADE)
+
+# dat <- dat %>%
+#     mutate(
+#         Smoking = as.factor(Smoking),
+#         Education = as.factor(Education),
+#         Cholesterol = as.numeric(Cholesterol)
+#     )
+ddf$INTER_P_SIN_EVOL = as.numeric(ddf$INTER_P_SIN_EVOL)
+ddf$IDADE = as.double(ddf$IDADE)
+ddf <-select(ddf, -DT_SIN_PRI, -DT_ENTUTI, -DT_EVOLUCA)
+# discretize idade
+
+ddf[, c("IDADE", 
+        "INTER_P_SIN_UTI", 
+        "INTER_P_SIN_EVOL")] <- discretize(ddf[, c("IDADE",   
+                                                   "INTER_P_SIN_UTI",  
+                                                   "INTER_P_SIN_EVOL")], 
+                                           method = 'hartemink', 4) 
+
+
+glimpse(ddf)
+```
+
+
+```{r  echo=FALSE}
+set.seed(4242)
+nn <- nrow(ddf)
+
+n.test <- 5000
+n.learn <-  nn - n.test
+
+ii.learn <- sample(x = 1:nn, size = n.learn, replace = FALSE)
+ddf$index <- 'T'
+ddf$index[ii.learn] <- 'L'
+table(ddf$index)
+```
+
+
+```{r  echo=FALSE}
+# train
+s1 <- filter(ddf, index == "L") 
+s1 <- select(s1,-index, -SG_UF_NOT, -UTI)
+s1 <- as.data.frame(s1)
+
+# test
+s2 <- filter(ddf, index=="T")
+s2 <- select(s2, -index, -SG_UF_NOT, -UTI)
+s2 <- as.data.frame(s2)
+```
+
+```{r  echo=FALSE}
+set.seed(4242)
+```   
+
+```{r echo=TRUE}
+train <- s1
+test <- s2
+```
+
+
+
+# Aprendizagem da estrutura da rede
+
+## Diferentes algortimos de prendizagem
+-HC
+-GS
+-IAMB
+-MMHC
+```{r echo=FALSE}
+# 
+# bl <- matrix(c("UTI", "SUPORT_VEN",
+#                "SUPORT_VEN", "UTI"),
+#             ncol = 2, byrow = TRUE, dimnames = list(NULL, c("from", "to")))
+
+bn.hc   <- suppressWarnings(hc(train,))
+bn.mmhc <- suppressWarnings(mmhc(train))
+bn.gs   <- suppressWarnings(gs(train))
+bn.iamb <- suppressWarnings(iamb(train))
+```
+
+# Algo = HC
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+graphviz.plot(bn.hc, 
+              shape = 'rectangle', 
+              main = "Algo = HC",
+              highlight  = list(nodes = mb(bn.hc, 'EVOLUCAO')))
+```
+
+# Algo = MMHC
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+
+graphviz.plot(bn.mmhc, 
+              shape = 'rectangle', 
+              main = "Algo = MMHC",
+              highlight  = list(nodes = mb(bn.mmhc, 'EVOLUCAO')))
+```
+
+# Algo = GS
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+graphviz.plot(bn.gs, 
+              shape = 'rectangle', 
+              main = "Algo = GS",
+              highlight  = list(nodes = mb(bn.gs, 'EVOLUCAO')))
+```
+
+# Algo = IAMB
+```{r echo=FALSE}
+par(mfrow = c(1, 1))
+graphviz.plot(bn.iamb, 
+              shape = 'rectangle', 
+              main = "Algo = IAMB",
+              highlight  = list(nodes = mb(bn.iamb, 'EVOLUCAO')))
+```
+
+# Distribuição conjunta de probabilidades entre as variáveis.
+
+## Algoritmo *HC*
+```{r}
+forca.real.hc <- suppressWarnings(boot.strength(train,
+                               R = boots.trap, 
+                               algorithm = "hc"))
+rede.media.train.hc = averaged.network(forca.real.hc)
+
+rede.media.train.dagged.hc <- pdag2dag(rede.media.train.hc, 
+                                       ordering = names(train))
+thr.real.gs <- paste('Thr: ', attr(forca.real.hc, "threshold"))
+
+par(mfrow = c(1, 1))
+fit.bn.hc <- bn.fit(x = rede.media.train.dagged.hc, data = s1)
+graphviz.chart(fit.bn.hc, 
+               type = "barprob", 
+               col = "darkblue", 
+               bg = "azure", 
+               bar.col = "darkblue",
+               main = "Rede de probabilidades")
+```
+
+# Distribuição conjunta de probabilidades entre as variáveis. 
+                                   
+## Algoritmo **GS**
+```{r}
+forca.real.gs <- suppressWarnings(boot.strength(train,
+                               R = boots.trap, 
+                               algorithm = "gs"))
+rede.media.train.gs = averaged.network(forca.real.gs)
+
+rede.media.train.dagged.gs <- pdag2dag(rede.media.train.gs, 
+                                       ordering = names(train))
+thr.real.gs <- paste('Thr: ', attr(forca.real.gs, "threshold"))
+
+par(mfrow = c(1, 1))
+fit.bn.gs <- bn.fit(x = rede.media.train.dagged.gs, data = s1)
+graphviz.chart(fit.bn.gs, 
+               type = "barprob", 
+               col = "darkblue", 
+               bg = "azure", 
+               bar.col = "darkblue",
+               main = "Rede de probabilidades")
+```
+
+# Distribuição conjunta de probabilidades entre as variáveis. 
+
+## Algoritmo **IAMB**
+```{r}
+forca.real.iamb <- suppressWarnings(boot.strength(train,
+                               R = boots.trap, 
+                               algorithm = "iamb"))
+rede.media.train.iamb = averaged.network(forca.real.iamb)
+
+rede.media.train.dagged.iamb <- pdag2dag(rede.media.train.iamb, 
+                                       ordering = names(train))
+thr.real.gs <- paste('Thr: ', attr(forca.real.iamb, "threshold"))
+fit.bn.iamb <- bn.fit(x = rede.media.train.dagged.iamb, data = s1)
+par(mfrow = c(1, 1))
+graphviz.chart(fit.bn.iamb, 
+               type = "barprob", 
+               col = "darkblue", 
+               bg = "azure", 
+               bar.col = "darkblue",
+               main = "Rede de probabilidades")
+```
+
+# Distribuição conjunta de probabilidades entre as variáveis. 
+
+## Algoritmo **MMHC**
+```{r}
+forca.real.mmhc <- suppressWarnings(boot.strength(train,
+                               R = boots.trap, 
+                               algorithm = "mmhc"))
+rede.media.train.mmhc = averaged.network(forca.real.mmhc)
+
+rede.media.train.dagged.mmhc <- pdag2dag(rede.media.train.mmhc, 
+                                       ordering = names(train))
+thr.real.gs <- paste('Thr: ', attr(forca.real.mmhc, "threshold"))
+fit.bn.mmhc <- bn.fit(x = rede.media.train.dagged.mmhc, data = s1)
+par(mfrow = c(1, 1))
+graphviz.chart(fit.bn.mmhc, 
+               type = "barprob", 
+               col = "darkblue", 
+               bg = "azure", 
+               bar.col = "darkblue",
+               main = "Rede de probabilidades")
+```
+
+------------
+
+
+# Predição 
+
+
+## SET.EVIDENCE + QUERYGRAIN
+```{r echo=TRUE}
+# 
+# [1] "CLASSI_FIN" "IDADE" "OBESIDADE"  "UTI"  "SUPORT_VEN" 
+# 
+
+# IDADE
+# [1,36] (36,71] (71,106]
+
+# UTI
+#  1-Sim 
+#  2-Nao 
+#  9-Ignorado
+
+#SUPORT_VEN
+# 1-Sim, invasivo 
+# 2-Sim, nao invasivo 
+# 3-Nao
+# 9-Ignorado
+# 
+prediga <- function(rede, amostras, estados){
+  
+  fitt1 <- bn.fit(rede, amostras)
+  junction = compile(as.grain(fitt1))
+  jedu = setEvidence(propagate = TRUE, junction,
+                     node = c("CLASSI_FIN",
+                              "IDADE",
+                              #"UTI",
+                              "INTER_P_SIN_EVOL",
+                              "INTER_P_SIN_UTI",
+                              "SUPORT_VEN"),
+                     states =  estados)
+  suppressWarnings(pred.rede <- querygrain(jedu,
+                          nodes = c("EVOLUCAO"),
+                          type = "marginal"))
+  return(pred.rede)
+}
+
+estados <- c("5", "(71, 80]", "(13,55]", "(10,28]", "1")
+
+pred.rede <- suppressWarnings(prediga(bn.hc, train, estados))
+
+
+print(pred.rede)
+```
+
+
+## predição por proporção dos dados
+```{r echo=TRUE}
+# usando dataset de test
+x <- filter(test, 
+            CLASSI_FIN == 5, 
+            IDADE == "(71, 80]", 
+            INTER_P_SIN_EVOL == "(13,55]",
+            INTER_P_SIN_UTI == "(10,28]",
+            #UTI == 1, 
+            SUPORT_VEN == 1)
+pred.proporcao <- nrow(filter(x, EVOLUCAO == 1))/nrow(x)
+
+x2 <- filter(test, 
+            CLASSI_FIN == 5, 
+            IDADE == "(71, 80]", 
+            INTER_P_SIN_EVOL == "(13,55]",
+            INTER_P_SIN_UTI == "(10,28]",            
+            #UTI == 1, 
+            SUPORT_VEN == 1)
+pred.proporcao2 <- nrow(filter(x2, EVOLUCAO == 2))/nrow(x2)
+
+print(pred.proporcao)
+
+print(pred.proporcao2)
+```
+
+# Fit dag to data and predict the value of latent variable
+
+
+```{r echo=FALSE}
+## predicting a variable in the test set. UTI rede simplificada
+
+# training.dagged <- bn.fit(rede.media.train.dagged, train)
+# 
+# predicted  <- predict(training.dagged,  
+#                       node = "UTI", 
+#                       data = test, 
+#                       method = "bayes-lw")
+# test$PREDICAO  <- predicted
+# 
+# test <- na.omit(test)
+# 
+# conf_mat.uti  <- confusion_matrix(targets = test$UTI,
+#                                   predictions = test$PREDICAO)
+# 
+# par(mfrow = c(1, 1))
+# plot_confusion_matrix(conf_mat.uti$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$UTI, test$PREDICAO), conf.level = 0.95))
+```
+
+
+```{r echo=FALSE}
+## predicting a variable in the test set. UTI rede completa
+
+# training.mmhc <- bn.fit(bn.mmhc, train)
+# predicted  <- predict(training.mmhc,  
+#                       node = "UTI", 
+#                       data = test, 
+#                       method = "bayes-lw")
+# test$PREDICAO  <- predicted
+# 
+# test <- na.omit(test)
+# 
+# conf_mat.uti2  <- confusion_matrix(targets = test$UTI,
+#                                   predictions = test$PREDICAO)
+# 
+# par(mfrow = c(1, 1))
+# plot_confusion_matrix(conf_mat.uti2$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$UTI, test$PREDICAO), conf.level = 0.95))
+```
+
+
+## predicting a variable in the test set. EVOLUCAO
+
+```{r echo=FALSE}
+training.hc  <- bn.fit(bn.hc, train)
+predicted  <- predict(training.hc,  
+                      node = "EVOLUCAO", 
+                      data = test, 
+                      method = "bayes-lw")
+
+test$PREDICAO  <- predicted
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                       predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
+```
+## predicting a variable in the test set. EVOLUCAO rede simplificada
+## ***HC**
+```{r echo=FALSE}
+
+training.dagged <- bn.fit(rede.media.train.dagged.hc, train)
+
+predicted  <- predict(training.dagged,  
+                      node = "EVOLUCAO", 
+                      data = test, 
+                      method = "bayes-lw")
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                  predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+
+#print(epi.tests(table(test$EVOLUCAO, test$PREDICAO), conf.level = 0.95))
+```
+
+## predicting a variable in the test set. EVOLUCAO rede simplificada
+## **GS**
+```{r echo=FALSE}
+
+training.dagged <- bn.fit(rede.media.train.dagged.gs, train)
+
+predicted  <- predict(training.dagged,  
+                      node = "EVOLUCAO", 
+                      data = test, 
+                      method = "bayes-lw")
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                  predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+```
+
+
+## predicting a variable in the test set. EVOLUCAO rede simplificada
+## **MMHC**
+```{r echo=FALSE}
+
+training.dagged <- bn.fit(rede.media.train.dagged.mmhc, train)
+
+predicted  <- predict(training.dagged,  
+                      node = "EVOLUCAO", 
+                      data = test, 
+                      method = "bayes-lw")
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                  predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+```
+
+
+## predicting a variable in the test set. EVOLUCAO rede simplificada
+## **IAMB**
+```{r echo=FALSE}
+
+training.dagged <- bn.fit(rede.media.train.dagged.iamb, train)
+
+predicted  <- predict(training.dagged,  
+                      node = "EVOLUCAO", 
+                      data = test, 
+                      method = "bayes-lw")
+test$PREDICAO  <- predicted
+
+test <- na.omit(test)
+
+conf_mat.evolucao  <- confusion_matrix(targets = test$EVOLUCAO,
+                                  predictions = test$PREDICAO)
+
+par(mfrow = c(1, 1))
+plot_confusion_matrix(conf_mat.evolucao$`Confusion Matrix`[[1]])
+```
+#
